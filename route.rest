@@ -1,0 +1,29 @@
+GET http://localhost:6700/exercises/all
+Content-Type: application/json
+Authorization: Bearer 4047ebcd70a5ce1f00025f8aaef3a0ca620e850bfe58658c3484ab8485eb477b
+
+###
+
+GET http://localhost:6700/mydata
+Content-Type: application/json
+Authorization: Bearer 4047ebcd70a5ce1f00025f8aaef3a0ca620e850bfe58658c3484ab8485eb477b
+
+###
+
+POST http://localhost:6700/auth/register
+Content-Type: application/json
+
+{
+    "email": "test@gmail.com",
+    "password": "password"
+}
+
+###
+
+POST http://localhost:6700/auth/login
+Content-Type: application/json
+
+{
+    "email": "test@gmail.com",
+    "password": "password"
+}
