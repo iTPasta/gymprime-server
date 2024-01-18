@@ -22,7 +22,7 @@ export const getDietById = (id: string) => DietModel.findById(id);
 export const createDiet = (values: Record<string, any>) => new DietModel(values)
     .save().then((diet) => diet.toObject());
 export const deleteDietById = (id: string) => DietModel.findOneAndDelete( {_id: id} );
-export const updateDietById = (id: string, values: Record<string, any>) => DietModel.findByIdAndUpdate(id, { $set: values } )
+export const updateDietById = (id: string, values: Record<string, any>) => DietModel.findByIdAndUpdate(id, { $set: values }, { new: true })
 .then((diet) => diet ? diet.toObject() : null);
 
 export const addMealToDietByIds = (diet_id: string, meal_id: string) => DietModel.findByIdAndUpdate(

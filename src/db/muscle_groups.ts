@@ -36,7 +36,7 @@ export const getMuscleGroupById = (id: string) => MuscleGroupModel.findById(id);
 export const createMuscleGroup = (values: Record<string, any>) => new MuscleGroupModel(values)
 .save().then((muscleGroup) => muscleGroup.toObject());
 export const deleteMuscleGroupById = (id: string) => MuscleGroupModel.findOneAndDelete( {_id: id} );
-export const updateMuscleGroupById = (id: string, values: Record<string, any>) => MuscleGroupModel.findByIdAndUpdate(id, { $set: values } )
+export const updateMuscleGroupById = (id: string, values: Record<string, any>) => MuscleGroupModel.findByIdAndUpdate(id, { $set: values }, { new: true })
 .then((muscleGroup) => muscleGroup ? muscleGroup.toObject() : null);
 
 export const addMuscleToGroupByIds = (muscle_group_id: string, muscle_id: string) => { MuscleGroupModel.findByIdAndUpdate(

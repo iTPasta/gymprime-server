@@ -36,7 +36,7 @@ export const getRecipeById = (id: string) => RecipeModel.findById(id);
 export const createRecipe = (values: Record<string, any>) => new RecipeModel(values)
     .save().then((recipe) => recipe.toObject());
 export const deleteRecipeById = (id: string) => RecipeModel.findOneAndDelete( {_id: id} );
-export const updateRecipeById = (id: string, values: Record<string, any>) => RecipeModel.findByIdAndUpdate(id,  { $set: values } )
+export const updateRecipeById = (id: string, values: Record<string, any>) => RecipeModel.findByIdAndUpdate(id,  { $set: values }, { new: true })
 .then((recipe) => recipe ? recipe.toObject() : null);;
 
 export const addIngredientToRecipeByIds = (recipe_id: string, ingredient: Object) => RecipeModel.findByIdAndUpdate(

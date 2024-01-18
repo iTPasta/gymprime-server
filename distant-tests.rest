@@ -232,7 +232,7 @@ Authorization: Bearer 8b575d72f2c56b9a499393ee6f6a6a1b7eb8a38b24307f557af13c9288
 
 # On peut modifier nos données, par exemple une recette.
 
-PUT http://51.77.151.56:6700/recipes/65a9541ad1257d2c89c25fe2
+PUT http://51.77.151.56:6700/recipes/65a9541ad1257d2c89c25fe0
 Content-Type: application/json
 Authorization: Bearer 8b575d72f2c56b9a499393ee6f6a6a1b7eb8a38b24307f557af13c9288b98eb3
 

@@ -47,7 +47,7 @@ export const getMealById = (id: string) => MealModel.findById(id);
 export const createMeal = (values: Record<string, any>) => new MealModel(values)
     .save().then((meal) => meal.toObject());
 export const deleteMealById = (id: string) => MealModel.findOneAndDelete( {_id: id} );
-export const updateMealById = (id: string, values: Record<string, any>) => MealModel.findByIdAndUpdate(id, { $set: values } )
+export const updateMealById = (id: string, values: Record<string, any>) => MealModel.findByIdAndUpdate(id, { $set: values }, { new: true })
 .then((meal) => meal ? meal.toObject() : null);;
 
 export const addAlimentToMealByIds = (meal_id: string, aliment_id: string) => MealModel.findByIdAndUpdate(

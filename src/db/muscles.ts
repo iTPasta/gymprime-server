@@ -42,7 +42,7 @@ export const getMuscleById = (id: string) => MuscleModel.findById(id);
 export const createMuscle = (values: Record<string, any>) => new MuscleModel(values)
 .save().then((muscle) => muscle.toObject());
 export const deleteMuscleById = (id: string) => MuscleModel.findOneAndDelete( {_id: id} );
-export const updateMuscleById = (id: string, values: Record<string, any>) => MuscleModel.findByIdAndUpdate(id, { $set: values } )
+export const updateMuscleById = (id: string, values: Record<string, any>) => MuscleModel.findByIdAndUpdate(id, { $set: values }, { new: true })
 .then((muscle) => muscle ? muscle.toObject() : null);;
 
 export const addExerciseToMuscleByIds = (muscle_id: string, exercise_id: string) => { MuscleModel.findByIdAndUpdate(

@@ -54,5 +54,5 @@ export const getAlimentById = (id: string) => AlimentModel.findById(id);
 export const createAliment = (values: Record<string, any>) => new AlimentModel(values)
 .save().then((aliment) => aliment.toObject());
 export const deleteAlimentById = (id: string) => AlimentModel.findOneAndDelete( {_id: id} );
-export const updateAlimentById = (id: string, values: Record<string, any>) => AlimentModel.findByIdAndUpdate(id, { $set: values } )
+export const updateAlimentById = (id: string, values: Record<string, any>) => AlimentModel.findByIdAndUpdate(id, { $set: values }, { new: true })
 .then((aliment) => aliment ? aliment.toObject() : null);

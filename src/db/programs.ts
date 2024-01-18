@@ -51,7 +51,7 @@ export const getProgramById = (id: string) => ProgramModel.findById(id);
 export const createProgram = (values: Record<string, any>) => new ProgramModel(values)
     .save().then((program) => program.toObject());
 export const deleteProgramById = (id: string) => ProgramModel.findOneAndDelete( {_id: id} );
-export const updateProgramById = (id: string, values: Record<string, any>) => ProgramModel.findByIdAndUpdate(id, { $set: values } )
+export const updateProgramById = (id: string, values: Record<string, any>) => ProgramModel.findByIdAndUpdate(id, { $set: values }, { new: true })
 .then((program) => program ? program.toObject() : null);;
 
 export const addExerciseToProgramByIds = (program_id: string, exercise_id: string) => ProgramModel.findByIdAndUpdate(
