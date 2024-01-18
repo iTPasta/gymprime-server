@@ -1,0 +1,248 @@
+# Ceci est un fichier de démonstration de différentes routes de
+# ma REST-API, il est plus pratique d'utiliser celui-ci, plutôt
+# que le local-tests.rest, étant donné que j'ai préparé un serveur
+# qui fonctionne avec celui-ci.
+
+# J'ai déjà créé un utilisateur pour que vous puissiez tester
+# les routes de ma REST API. On ne peut donc plus se réenregistrer
+# avec le même email comme j'essaie de faire en dessous.
+
+POST http://51.77.151.56:6700/auth/register
+Content-Type: application/json
+
+{
+    "email": "user@email.com",
+    "password": "password"
+}
+
+###
+
+# On peut s'enregister avec un autre email, cela marchera.
+# Vous pouvez essayer juste en dessous.
+
+POST http://51.77.151.56:6700/auth/register
+Content-Type: application/json
+
+{
+    "email": "nimportequoi@email.com",
+    "password": "password"
+}
+
+###
+
+# On peut ensuite se connecter avec cet email et
+# le bon mot de passe.
+
+POST http://51.77.151.56:6700/auth/login
+Content-Type: application/json
+
+{
+    "email": "nimportequoi@email.com",
+    "password": "password"
+}
+
+###
+
+# En essayant avec un email qui n'existe pas,
+# on reçoit logiquement une erreur.
+
+POST http://51.77.151.56:6700/auth/login
+Content-Type: application/json
+
+{
+    "email": "nexistepas@email.com",
+    "password": "password"
+}
+
+###
+
+# Si vous souhaitez essayer le token que vous avez reçu
+# via la route login en échange de l'email et du mot de
+# passe, vous pouvez essayer d'obtenir l'ensemble des
+# régimes enregistrés de l'utilisateur, vous recevrez
+# une liste vide étant donné qu'il n'en possède pas, vu
+# que vous venez de le créer, mais aucune erreur, donc
+# le token fonctionne.
+# Dans la requête suivante, remplacez simplement <TOKEN>
+# par celui obtenu en dernier auparavant, car seul le
+# dernier token obtenu pour un utilisateur est valable.
+
+GET http://51.77.151.56:6700/diets
+Authorization: Bearer <TOKEN>
+
+###
+
+# Désormais nous utiliserons l'utilisateur que j'ai créé
+# en amont pour pouvoir tester la REST API, j'ai donc
+# complété les requêtes suivantes avec son token.
+# En premier temps, on peut par exemple obtenir tous les
+# exercices de musculation disponibles (j'en ai créé un pour
+# pouvoir tester).
+
+GET http://51.77.151.56:6700/exercises/all
+Authorization: Bearer 8b575d72f2c56b9a499393ee6f6a6a1b7eb8a38b24307f557af13c9288b98eb3
+
+###
+
+# Voici comment j'ai créé l'exercice ci-dessus (la réponse sera
+# une erreur car vous n'êtes pas administrateur, vous ne pouvez
+# donc pas créer d'exercice).
+
+POST http://51.77.151.56:6700/exercises/
+Content-Type: application/json
+Authorization: Bearer 8b575d72f2c56b9a499393ee6f6a6a1b7eb8a38b24307f557af13c9288b98eb3
+
+{
+    "name": {
+        "en": "Leg press",
+        "fr": "Presse à cuisse"
+    },
+    "description": {
+        "en": "A description on how to correctly execute the exercise.",
+        "fr": "Une description sur comment effectuer correctement l'exercice."
+    },
+    "muscles": [],
+    "muscle_group": "65a94edad1257d2c89c25fd7",
+    "image": "Lien vers une image de l'exercice."
+}
+
+###
+
+# L'utilisateur n'est pas administrateur, on obtiendra une
+# erreur si on essaie par exemple de supprimer un exercice
+# de musculation.
+# Même si on met un ID inexistant, la vérification d'administrateur
+# s'effectue avant celle de l'existence de l'ID.
+
+DELETE http://51.77.151.56:6700/exercises/IDinexistant
+Authorization: Bearer 8b575d72f2c56b9a499393ee6f6a6a1b7eb8a38b24307f557af13c9288b98eb3
+
+
+
+###
+
+# Voici comment obtenir un aliment et les données liées à celui-ci
+# à partir de son identifiant.
+
+GET http://51.77.151.56:6700/aliments/65a94d2dd1257d2c89c25fd2
+Authorization: Bearer 8b575d72f2c56b9a499393ee6f6a6a1b7eb8a38b24307f557af13c9288b98eb3
+
+###
+
+# L'utilisateur peut se créer des recettes en envoyant la requête suivante.
+# Ici on crée une recette avec 20g de barre de chocolat
+# et 30 grammes de Nutella.
+
+POST http://51.77.151.56:6700/recipes/
+Content-Type: application/json
+Authorization: Bearer 8b575d72f2c56b9a499393ee6f6a6a1b7eb8a38b24307f557af13c9288b98eb3
+
+{
+    "name": "Chocolat, Chocolat, Chocolat",
+    "description": "Pas très diététique.",
+    "ingredients": [
+        {
+            "aliment": "65a94a05d1257d2c89c25fa1",
+            "quantity": 20,
+            "unit": "g"
+        },
+        {
+            "aliment": "65a94d2dd1257d2c89c25fd2",
+            "quantity": 30,
+            "unit": "g"
+        }
+    ]
+}
+
+###
+
+# On peut ensuite voir l'ensemble de nos recettes
+# comme ceci (il se peut qu'il y en ait plusieurs
+# suite à mes propres tests).
+
+GET http://51.77.151.56:6700/recipes/
+Authorization: Bearer 8b575d72f2c56b9a499393ee6f6a6a1b7eb8a38b24307f557af13c9288b98eb3
+
+
+###
+
+# On peut ensuite ajouter cette recette à un repas que
+# nous allons créer.
+# Dans un repas, on peut ajouter soit des aliments, soit
+# des recettes.
+
+POST http://51.77.151.56:6700/meals/
+Content-Type: application/json
+Authorization: Bearer 8b575d72f2c56b9a499393ee6f6a6a1b7eb8a38b24307f557af13c9288b98eb3
+
+{
+    "name": "Goûter",
+    "description": "Salade et chocolat.",
+    "aliments": [
+        {
+            "aliment": "65a94c88d1257d2c89c25fb9",
+            "quantity": 50,
+            "unit": "g"
+        }
+    ],
+    "recipes": [
+        {
+            "recipe": "65a9541ad1257d2c89c25fe0",
+            "quantity": 1
+        }
+    ]
+}
+
+###
+
+# Enfin, les repas peuvent être rajoutés à des régimes.
+# Ici nous en créons un.
+
+POST http://51.77.151.56:6700/diets/
+Content-Type: application/json
+Authorization: Bearer 8b575d72f2c56b9a499393ee6f6a6a1b7eb8a38b24307f557af13c9288b98eb3
+
+{
+    "name": "Régime douteux.",
+    "description": "Pas très sain.",
+    "meals": [
+        "6ea95847d1257d2c89c25fec"
+    ]
+}
+
+###
+
+# De manière similaire, on peut créer des programmes
+# d'entraînement avec différents exercices, des nombres
+# de répétitions, des poids, ect. On peut aussi créer
+# des séances (qu'on enregistre à chaque fois qu'on
+# fait du sport si on le souhaite).
+
+###
+
+# Pour obtenir l'ensemble des informations nous concernant
+# on peut utiliser la route /mydata, on reçoit alors nos
+# préférences (paramètres de l'application), nos recettes,
+# nos repas, nos régimes, nos programmes, et nos séances.
+
+GET http://51.77.151.56:6700/mydata
+Authorization: Bearer 8b575d72f2c56b9a499393ee6f6a6a1b7eb8a38b24307f557af13c9288b98eb3
+
+###
+
+# On peut modifier nos données, par exemple une recette.
+
+PUT http://51.77.151.56:6700/recipes/65a9541ad1257d2c89c25fe2
+Content-Type: application/json
+Authorization: Bearer 8b575d72f2c56b9a499393ee6f6a6a1b7eb8a38b24307f557af13c9288b98eb3
+
+{
+    "description": "Très très bon pour la santé."
+}
+
+###
+
+# De même on peut supprimer nos données, par exemple un régime.
+
+DELETE http://51.77.151.56:6700/recipes/65a9541ad1257d2c89c25fe2
+Authorization: Bearer 8b575d72f2c56b9a499393ee6f6a6a1b7eb8a38b24307f557af13c9288b98eb3

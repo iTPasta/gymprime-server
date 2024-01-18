@@ -1,0 +1,246 @@
+# local-tests.rest est moins pratique car il nécessite de
+# lancer le docker-compose.yml sur votre machine, et permet
+# de tester moins de fonctionnalités que si vous les testiez
+# via le fichier distant-tests.rest qui communique avec un
+# serveur que j'ai préparé pour vos tests.
+# Mais si vous souhaitez tout de même tester la REST-API en
+# local avec docker vous pouvez utiliser ce fichier.
+
+###
+
+# Tout d'abord, créons un utilisateur afin de pouvoir
+# effectuer des actions qui nécessitent une authentification.
+
+POST http://localhost:6700/auth/register
+Content-Type: application/json
+
+{
+    "email": "user@email.com",
+    "password": "password"
+}
+
+###
+
+# Si vous réessayez de vous enregister avec le même email,
+# vous obtiendrez une erreur.
+
+POST http://localhost:6700/auth/register
+Content-Type: application/json
+
+{
+    "email": "user@email.com",
+    "password": "password"
+}
+
+###
+
+# On peut ensuite se connecter avec cet email et
+# le bon mot de passe.
+# Cela va vous renvoyer un token qu'il faudra
+# ensuite entrer dans certains headers de requêtes,
+# à la place de <TOKEN>.
+# Ce n'est pas très pratique, désolé, mais si vous
+# le souhaitez, dans le fichier distant-tests.rest,
+# les tokens sont déjà complétés.
+
+POST http://localhost:6700/auth/login
+Content-Type: application/json
+
+{
+    "email": "user@email.com",
+    "password": "password"
+}
+
+###
+
+# En essayant avec un email qui n'existe pas,
+# on reçoit logiquement une erreur.
+
+POST http://localhost:6700/auth/login
+Content-Type: application/json
+
+{
+    "email": "nexistepas@email.com",
+    "password": "password"
+}
+
+###
+
+# Voici une requête obtenir tous les
+# exercices de musculation disponibles (j'en ai créé un pour
+# pouvoir tester).
+
+GET http://localhost:6700/exercises/all
+Authorization: Bearer <TOKEN>
+
+###
+
+# Voici comment j'ai créer un exercice (la réponse sera
+# une erreur car vous n'avez pas de compte administrateur,
+# vous ne pouvez donc pas créer d'exercice).
+
+POST http://localhost:6700/exercises/
+Content-Type: application/json
+Authorization: Bearer <TOKEN>
+
+{
+    "name": {
+        "en": "Leg press",
+        "fr": "Presse à cuisse"
+    },
+    "description": {
+        "en": "A description on how to correctly execute the exercise.",
+        "fr": "Une description sur comment effectuer correctement l'exercice."
+    },
+    "muscles": [],
+    "muscle_group": "65a94edad1257d2c89c25fd7",
+    "image": "Lien vers une image de l'exercice."
+}
+
+###
+
+# L'utilisateur n'est pas administrateur, on obtiendra une
+# erreur si on essaie par exemple de supprimer un exercice
+# de musculation.
+# Même si on met un ID inexistant, la vérification d'administrateur
+# s'effectue avant celle de l'existence de l'ID.
+
+DELETE http://localhost:6700/exercises/IDinexistant
+Authorization: Bearer <TOKEN>
+
+
+
+###
+
+# Voici comment obtenir un aliment et les données liées à celui-ci
+# à partir de son identifiant (ici on obtient une erreur car
+# aucun aliment n'est enregistré dans le docker).
+
+GET http://localhost:6700/aliments/65a94d2dd1257d2c89c25fd2
+Authorization: Bearer <TOKEN>
+
+###
+
+# L'utilisateur peut se créer des recettes en envoyant la requête suivante.
+# Ici supposons qu'on crée une recette avec 20g de barre de chocolat
+# et 30 grammes de Nutella.
+
+POST http://localhost:6700/recipes/
+Content-Type: application/json
+Authorization: Bearer <TOKEN>
+
+{
+    "name": "Chocolat, Chocolat, Chocolat",
+    "description": "Pas très diététique.",
+    "ingredients": [
+        {
+            "aliment": "65a94a05d1257d2c89c25fa1",
+            "quantity": 20,
+            "unit": "g"
+        },
+        {
+            "aliment": "65a94d2dd1257d2c89c25fd2",
+            "quantity": 30,
+            "unit": "g"
+        }
+    ]
+}
+
+###
+
+# On peut ensuite voir l'ensemble de nos recettes
+# comme ceci.
+# Nous utiliserons par la suite l'ID de la recette
+# que cette requête créera, copiez le ici pour le
+# garder : <ID>
+
+GET http://localhost:6700/recipes/
+Authorization: Bearer <TOKEN>
+
+
+###
+
+# On peut aussi ajouter cette recette à un repas que
+# nous allons créer.
+# Dans un repas, on peut ajouter soit des aliments, soit
+# des recettes.
+
+POST http://localhost:6700/meals/
+Content-Type: application/json
+Authorization: Bearer <TOKEN>
+
+{
+    "name": "Goûter",
+    "description": "Salade et chocolat.",
+    "aliments": [
+        {
+            "aliment": "65a94c88d1257d2c89c25fb9",
+            "quantity": 50,
+            "unit": "g"
+        }
+    ],
+    "recipes": [
+        {
+            "recipe": "65a9541ad1257d2c89c25fe0",
+            "quantity": 1
+        }
+    ]
+}
+
+###
+
+# Enfin, les repas peuvent être rajoutés à des régimes.
+# Ici nous en créons un.
+# Gardez l'ID de ce régime pour plus tard ici : <ID>
+
+POST http://localhost:6700/diets/
+Content-Type: application/json
+Authorization: Bearer <TOKEN>
+
+{
+    "name": "Régime douteux.",
+    "description": "Pas très sain.",
+    "meals": [
+        "6ea95847d1257d2c89c25fec"
+    ]
+}
+
+###
+
+# De manière similaire, on peut créer des programmes
+# d'entraînement avec différents exercices, des nombres
+# de répétitions, des poids, ect. On peut aussi créer
+# des séances (qu'on enregistre à chaque fois qu'on
+# fait du sport si on le souhaite).
+
+###
+
+# Pour obtenir l'ensemble des informations nous concernant
+# on peut utiliser la route /mydata, on reçoit alors nos
+# préférences (paramètres de l'application), nos recettes,
+# nos repas, nos régimes, nos programmes, et nos séances.
+
+GET http://localhost:6700/mydata
+Authorization: Bearer <TOKEN>
+
+###
+
+# On peut modifier nos données, par exemple une recette.
+# Ici utilisez l'ID de la recette que vous avez créé plus
+# tôt.
+
+PUT http://localhost:6700/recipes/<ID de recette créé plus haut>
+Content-Type: application/json
+Authorization: Bearer <TOKEN>
+
+{
+    "description": "Très très bon pour la santé."
+}
+
+###
+
+# De même on peut supprimer nos données, par exemple un régime.
+# Là vous utiliserez l'ID du régime créé auparavant.
+
+DELETE http://localhost:6700/recipes/<ID du régime créé plus haut>
+Authorization: Bearer <TOKEN>

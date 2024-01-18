@@ -1,4 +1,5 @@
 import express from "express";
+import mongoose from "mongoose";
 import { createDiet, deleteDietById, getDietById, getDiets, updateDietById } from "../db/diets";
 import { addUserDiet, removeUserDiet } from "../db/users";
 
@@ -16,9 +17,9 @@ export const getDiet = async (req: express.Request, res: express.Response) => {
             return res.sendStatus(400);
         }
 
-        const userDietsIds: string[] = user.diets;
+        const userDietsIds: mongoose.Types.ObjectId[] = user.diets;
 
-        if (!userDietsIds.includes(id)) {
+        if (!userDietsIds.some((userDietId) => userDietId.toString() === id)) {
             return res.sendStatus(401);
         }
 
@@ -71,9 +72,9 @@ export const deleteDiet = async (req: express.Request, res: express.Response) =>
             return res.sendStatus(400);
         }
 
-        const userDietsIds = user.diets;
+        const userDietsIds: mongoose.Types.ObjectId[] = user.diets;
 
-        if (!userDietsIds.includes(id)) {
+        if (!userDietsIds.some((userDietId) => userDietId.toString() === id)) {
             return res.sendStatus(401);
         }
 
@@ -106,9 +107,9 @@ export const updateDiet = async (req: express.Request, res: express.Response) =>
             return res.sendStatus(400);
         }
 
-        const userDietsIds = user.diets;
+        const userDietsIds: mongoose.Types.ObjectId[] = user.diets;
 
-        if (!userDietsIds.includes(id)) {
+        if (!userDietsIds.some((userDietId) => userDietId.toString() === id)) {
             return res.sendStatus(401);
         }
 

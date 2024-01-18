@@ -1,4 +1,5 @@
 import express from "express";
+import mongoose from "mongoose";
 import { addAlimentToMealByIds, addRecipeToMealByIds, createMeal, deleteMealById, getMealById, getMeals, removeAlimentFromMealByIds, removeRecipeFromMealByIds, updateMealById } from "../db/meals";
 import { getAlimentById } from "../db/aliments";
 import { getRecipeById } from "../db/recipes";
@@ -18,9 +19,9 @@ export const getMeal = async (req: express.Request, res: express.Response) => {
             return res.sendStatus(400);
         }
 
-        const userMealsIds = user.meals;
+        const userMealsIds: mongoose.Types.ObjectId[] = user.meals;
 
-        if (!userMealsIds.includes(id)) {
+        if (!userMealsIds.some((userMealId) => userMealId.toString() === id)) {
             return res.sendStatus(401);
         }
 
@@ -74,9 +75,9 @@ export const deleteMeal = async (req: express.Request, res: express.Response) =>
             return res.sendStatus(400);
         }
 
-        const userMealsIds = user.meals;
+        const userMealsIds: mongoose.Types.ObjectId[] = user.meals;
 
-        if (!userMealsIds.includes(id)) {
+        if (!userMealsIds.some((userMealId) => userMealId.toString() === id)) {
             return res.sendStatus(401);
         }
 
@@ -109,9 +110,9 @@ export const updateMeal = async (req: express.Request, res: express.Response) =>
             return res.sendStatus(400);
         }
 
-        const userMealsIds = user.meals;
+        const userMealsIds: mongoose.Types.ObjectId[] = user.meals;
 
-        if (!userMealsIds.includes(id)) {
+        if (!userMealsIds.some((userMealId) => userMealId.toString() === id)) {
             return res.sendStatus(401);
         }
 
@@ -144,9 +145,9 @@ export const addAlimentToMeal = async (req: express.Request, res: express.Respon
             return res.sendStatus(400);
         }
 
-        const userMealsIds = user.meals;
+        const userMealsIds: mongoose.Types.ObjectId[] = user.meals;
 
-        if (!userMealsIds.includes(id)) {
+        if (!userMealsIds.some((userMealId) => userMealId.toString() === id)) {
             return res.sendStatus(401);
         }
 
@@ -184,9 +185,9 @@ export const removeAlimentFromMeal = async (req: express.Request, res: express.R
             return res.sendStatus(400);
         }
 
-        const userMealsIds = user.meals;
+        const userMealsIds: mongoose.Types.ObjectId[] = user.meals;
 
-        if (!userMealsIds.includes(id)) {
+        if (!userMealsIds.some((userMealId) => userMealId.toString() === id)) {
             return res.sendStatus(401);
         }
 
@@ -218,9 +219,9 @@ export const addRecipeToMeal = async (req: express.Request, res: express.Respons
             return res.sendStatus(400);
         }
 
-        const userMealsIds = user.meals;
+        const userMealsIds: mongoose.Types.ObjectId[] = user.meals;
 
-        if (!userMealsIds.includes(meal_id)) {
+        if (!userMealsIds.some((userMealId) => userMealId.toString() === meal_id)) {
             return res.sendStatus(401);
         }
 
@@ -247,30 +248,30 @@ export const addRecipeToMeal = async (req: express.Request, res: express.Respons
 
 export const removeRecipeFromMeal = async (req: express.Request, res: express.Response) => {
     try {
-        const { id } = req.params;
+        const meal_id = req.params.id;
         const { user, recipe_id } = req.body;
 
         if (!user) {
             return res.sendStatus(500);
         }
 
-        if (!id || !recipe_id) {
+        if (!meal_id || !recipe_id) {
             return res.sendStatus(400);
         }
 
-        const userMealsIds = user.meals;
+        const userMealsIds: mongoose.Types.ObjectId[] = user.meals;
 
-        if (!userMealsIds.includes(id)) {
+        if (!userMealsIds.some((userMealId) => userMealId.toString() === meal_id)) {
             return res.sendStatus(401);
         }
 
-        const meal = await getMealById(id);
+        const meal = await getMealById(meal_id);
 
         if (!meal) {
             return res.sendStatus(400);
         }
 
-        await removeRecipeFromMealByIds(id, recipe_id);
+        await removeRecipeFromMealByIds(meal_id, recipe_id);
     
         return res.sendStatus(200);
     } catch (error) {

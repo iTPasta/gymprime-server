@@ -1,4 +1,5 @@
 import express from "express";
+import mongoose from "mongoose";
 import { createTraining, deleteTrainingById, getTrainingById, getTrainings, updateTrainingById } from "../db/trainings";
 import { addUserTraining, removeUserTraining } from "../db/users";
 
@@ -16,9 +17,9 @@ export const getTraining = async (req: express.Request, res: express.Response) =
             return res.sendStatus(400);
         }
 
-        const userTrainingsIds = user.trainings;
+        const userTrainingsIds: mongoose.Types.ObjectId[] = user.trainings;
 
-        if (!userTrainingsIds.includes(id)) {
+        if (!userTrainingsIds.some((userTrainingId) => userTrainingId.toString() === id)) {
             return res.sendStatus(401);
         }
 
@@ -76,9 +77,9 @@ export const deleteTraining = async (req: express.Request, res: express.Response
             return res.sendStatus(400);
         }
 
-        const userTrainingsIds = user.trainings;
+        const userTrainingsIds: mongoose.Types.ObjectId[] = user.trainings;
 
-        if (!userTrainingsIds.includes(id)) {
+        if (!userTrainingsIds.some((userTrainingId) => userTrainingId.toString() === id)) {
             return res.sendStatus(401);
         }
 
@@ -116,9 +117,9 @@ export const updateTraining = async (req: express.Request, res: express.Response
             return res.sendStatus(400);
         }
 
-        const userTrainingsIds = user.trainings;
+        const userTrainingsIds: mongoose.Types.ObjectId[] = user.trainings;
 
-        if (!userTrainingsIds.includes(id)) {
+        if (!userTrainingsIds.some((userTrainingId) => userTrainingId.toString() === id)) {
             return res.sendStatus(401);
         }
 

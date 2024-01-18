@@ -1,4 +1,5 @@
 import express from "express";
+import mongoose from "mongoose";
 import { createProgram, deleteProgramById, getProgramById, getPrograms, updateProgramById } from "../db/programs";
 import { addUserProgram, removeUserProgram } from "../db/users";
 
@@ -16,9 +17,9 @@ export const getProgram = async (req: express.Request, res: express.Response) =>
             return res.sendStatus(400);
         }
 
-        const userProgramsIds = user.programs;
+        const userProgramsIds: mongoose.Types.ObjectId[] = user.programs;
 
-        if (!userProgramsIds.includes(id)) {
+        if (!userProgramsIds.some((userProgramId) => userProgramId.toString() === id)) {
             return res.sendStatus(401);
         }
 
@@ -80,9 +81,9 @@ export const deleteProgram = async (req: express.Request, res: express.Response)
             return res.sendStatus(400);
         }
 
-        const userProgramsIds = user.programs;
+        const userProgramsIds: mongoose.Types.ObjectId[] = user.programs;
 
-        if (!userProgramsIds.includes(id)) {
+        if (!userProgramsIds.some((userProgramId) => userProgramId.toString() === id)) {
             return res.sendStatus(401);
         }
 
@@ -122,9 +123,9 @@ export const updateProgram = async (req: express.Request, res: express.Response)
             return res.sendStatus(400);
         }
 
-        const userProgramsIds = user.programs;
+        const userProgramsIds: mongoose.Types.ObjectId[] = user.programs;
 
-        if (!userProgramsIds.includes(id)) {
+        if (!userProgramsIds.some((userProgramId) => userProgramId.toString() === id)) {
             return res.sendStatus(401);
         }
 
