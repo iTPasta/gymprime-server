@@ -1,0 +1,23 @@
+version: "3"
+
+services:
+  mongo_db:
+    container_name: gymprime_db
+    image: mongo:latest
+    restart: always
+    volumes:
+      - mongo_db:/data/db
+
+  rest_api:
+    build: .
+    ports:
+      - 6700:6740
+    depends_on:
+      - mongo_db
+    environment:
+      SERVER_PORT: 6740
+      DATABASE_URI: mongodb://mongo_db:27017/gymprime
+      # - AUTH_HASH_SECRET: P9y5N1Fd0wFmedO4niQgAqb8UoX7hmT6DknD3
+
+volumes:
+  mongo_db: {}

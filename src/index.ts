@@ -9,7 +9,6 @@ import cors from 'cors';
 import mongoose from 'mongoose';
 import router from './router/index';
 
-
 const app = express();
 
 app.use(cors({
@@ -27,11 +26,11 @@ server.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}/.`);
 })
 
-const DATABASE_PORT = Number(process.env.DATABASE_PORT);
-const DATABASE_URL = process.env.DATABASE_URL ?? "";
+const DATABASE_URI = process.env.DATABASE_URI ?? "";
+console.log(`Connecting to the database at ${DATABASE_URI}.`)
 
 mongoose.Promise = Promise;
-mongoose.connect(DATABASE_URL);
+mongoose.connect(DATABASE_URI);
 mongoose.connection.on('error', (error: Error) => console.log(error));
 mongoose.connection.once('open', () => console.log("Connected to the database."));
 

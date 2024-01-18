@@ -44,9 +44,9 @@ export const makeDiet = async (req: express.Request, res: express.Response) => {
         }
 
         const diet = await createDiet({
-            name: name || undefined,
-            description: description || undefined,
-            meals: meals || undefined
+            name: name ?? undefined,
+            description: description ?? undefined,
+            meals: meals ?? undefined
         });
 
         await addUserDiet(user._id, diet._id);
@@ -113,9 +113,9 @@ export const updateDiet = async (req: express.Request, res: express.Response) =>
         }
 
         const values = {
-            name: name || undefined,
-            description: description || undefined,
-            meals: meals || undefined
+            name: name ?? undefined,
+            description: description ?? undefined,
+            meals: meals ?? undefined
         };
 
         const updatedDiet = await updateDietById(id, values);

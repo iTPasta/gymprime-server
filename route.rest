@@ -1,12 +1,12 @@
 GET http://localhost:6700/exercises/all
 Content-Type: application/json
-Authorization: Bearer 4047ebcd70a5ce1f00025f8aaef3a0ca620e850bfe58658c3484ab8485eb477b
+Authorization: Bearer 6478a18d3d81a36185d39967e74d265153c8c381fc8db0d32ade445cc31a2c59
 
 ###
 
 GET http://localhost:6700/mydata
 Content-Type: application/json
-Authorization: Bearer 4047ebcd70a5ce1f00025f8aaef3a0ca620e850bfe58658c3484ab8485eb477b
+Authorization: Bearer 6478a18d3d81a36185d39967e74d265153c8c381fc8db0d32ade445cc31a2c59
 
 ###
 
