@@ -18,6 +18,7 @@ export const getMyData = async (req: express.Request, res: express.Response) => 
     const dietsArray = [];
     for (const id of dietsIds) {
         dietsArray.push(await getDietById(id));
+        // TODO: Si indéfini supprimer.
     }
 
     const mealsIds = user.meals.toObject();

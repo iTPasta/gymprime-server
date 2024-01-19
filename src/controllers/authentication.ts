@@ -28,7 +28,7 @@ export const login = async (req: express.Request, res: express.Response) => {
 
         await user.save();
     
-        res.status(200).json({ token: user.authentication.sessionToken }).end();
+        return res.status(200).json({ token: user.authentication.sessionToken }).end();
     } catch (error) {
         console.log(error);
         return res.status(400).json({ error: "Exception thrown." }).end();

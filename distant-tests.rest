@@ -130,25 +130,25 @@ Authorization: Bearer 8b575d72f2c56b9a499393ee6f6a6a1b7eb8a38b24307f557af13c9288
 ###
 
 # L'utilisateur peut se créer des recettes en envoyant la requête suivante.
-# Ici on crée une recette avec 20g de barre de chocolat
-# et 30 grammes de Nutella.
+# Ici on crée une recette avec 50g de barres de chocolat
+# et 60 grammes de Nutella.
 
 POST http://51.77.151.56:6700/recipes/
 Content-Type: application/json
 Authorization: Bearer 8b575d72f2c56b9a499393ee6f6a6a1b7eb8a38b24307f557af13c9288b98eb3
 
 {
-    "name": "Chocolat, Chocolat, Chocolat",
+    "name": "Nutella sur barres de chocolat...",
     "description": "Pas très diététique.",
     "ingredients": [
         {
             "aliment": "65a94a05d1257d2c89c25fa1",
-            "quantity": 20,
+            "quantity": 50,
             "unit": "g"
         },
         {
             "aliment": "65a94d2dd1257d2c89c25fd2",
-            "quantity": 30,
+            "quantity": 60,
             "unit": "g"
         }
     ]
@@ -157,8 +157,8 @@ Authorization: Bearer 8b575d72f2c56b9a499393ee6f6a6a1b7eb8a38b24307f557af13c9288
 ###
 
 # On peut ensuite voir l'ensemble de nos recettes
-# comme ceci (il se peut qu'il y en ait plusieurs
-# suite à mes propres tests).
+# comme ceci (il y en a plusieurs déjà enregistrées
+# pour la suite des tests).
 
 GET http://51.77.151.56:6700/recipes/
 Authorization: Bearer 8b575d72f2c56b9a499393ee6f6a6a1b7eb8a38b24307f557af13c9288b98eb3
@@ -237,12 +237,12 @@ Content-Type: application/json
 Authorization: Bearer 8b575d72f2c56b9a499393ee6f6a6a1b7eb8a38b24307f557af13c9288b98eb3
 
 {
-    "description": "Très très bon pour la santé."
+    "description": "Vraiment pas bon pour la santé."
 }
 
 ###
 
 # De même on peut supprimer nos données, par exemple un régime.
 
-DELETE http://51.77.151.56:6700/recipes/65a9541ad1257d2c89c25fe2
+DELETE http://51.77.151.56:6700/diets/65a958ddd1257d2c89c25ff2
 Authorization: Bearer 8b575d72f2c56b9a499393ee6f6a6a1b7eb8a38b24307f557af13c9288b98eb3
