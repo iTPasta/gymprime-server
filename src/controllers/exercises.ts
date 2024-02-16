@@ -1,8 +1,17 @@
 import express from "express";
 
-import { createExercise, deleteExerciseById, getExerciseById, getExercises, updateExerciseById } from "../db/exercises";
+import {
+    createExercise,
+    deleteExerciseById,
+    getExerciseById,
+    getExercises,
+    updateExerciseById,
+} from "../db/exercises";
 
-export const getExercise = async (req: express.Request, res: express.Response) => {
+export const getExercise = async (
+    req: express.Request,
+    res: express.Response
+) => {
     try {
         const id = req.params.id;
 
@@ -21,38 +30,34 @@ export const getExercise = async (req: express.Request, res: express.Response) =
         console.log(error);
         return res.sendStatus(400);
     }
-}
+};
 
-export const makeExercise = async (req: express.Request, res: express.Response) => {
+export const makeExercise = async (
+    req: express.Request,
+    res: express.Response
+) => {
     try {
-        const {
-            name,
-            description,
-            muscles,
-            muscle_group,
-            image
-        } = req.body;
+        const { names, descriptions, muscles, muscleGroup, image } = req.body;
 
-        if (!name) {
-            return res.sendStatus(400)
-        }
-
-        const exercise = await createExercise({
-            name: name,
-            description: description ?? undefined,
+        const exerciseId = await createExercise({
+            names: names ?? undefined,
+            descriptions: descriptions ?? undefined,
             muscles: muscles ?? undefined,
-            muscle_group: muscle_group ?? undefined,
-            image: image ?? undefined
+            muscleGroup: muscleGroup ?? undefined,
+            image: image ?? undefined,
         });
 
-        return res.status(200).json(exercise);
+        return res.status(200).json(exerciseId);
     } catch (error) {
         console.log(error);
         return res.sendStatus(400);
     }
-}
+};
 
-export const deleteExercise = async (req: express.Request, res: express.Response) => {
+export const deleteExercise = async (
+    req: express.Request,
+    res: express.Response
+) => {
     try {
         const { id } = req.params;
 
@@ -67,41 +72,41 @@ export const deleteExercise = async (req: express.Request, res: express.Response
         console.log(error);
         return res.sendStatus(400);
     }
-}
+};
 
-export const updateExercise = async (req: express.Request, res: express.Response) => {
+export const updateExercise = async (
+    req: express.Request,
+    res: express.Response
+) => {
     try {
         const { id } = req.params;
-        const {
-            name,
-            description,
-            muscles,
-            muscle_group,
-            image
-        } = req.body;
+        const { names, descriptions, muscles, muscleGroup, image } = req.body;
 
         if (!id) {
             return res.sendStatus(400);
         }
 
         const values = {
-            name: name ?? undefined,
-            description: description ?? undefined,
+            names: names ?? undefined,
+            descriptions: descriptions ?? undefined,
             muscles: muscles ?? undefined,
-            muscle_group: muscle_group ?? undefined,
-            image: image ?? undefined
+            muscleGroup: muscleGroup ?? undefined,
+            image: image ?? undefined,
         };
 
-        const updatedExercise = await updateExerciseById(id, values);
+        await updateExerciseById(id, values);
 
-        return res.status(200).json(updatedExercise);
+        return res.sendStatus(200);
     } catch (error) {
         console.log(error);
         return res.sendStatus(400);
     }
-}
+};
 
-export const getAllExercises = async (req: express.Request, res: express.Response) => {
+export const getAllExercises = async (
+    req: express.Request,
+    res: express.Response
+) => {
     try {
         const exercises = await getExercises();
 
@@ -110,4 +115,4 @@ export const getAllExercises = async (req: express.Request, res: express.Respons
         console.log(error);
         return res.sendStatus(400);
     }
-}
+};

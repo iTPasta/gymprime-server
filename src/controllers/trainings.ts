@@ -1,9 +1,17 @@
 import express from "express";
 import mongoose from "mongoose";
-import { createTraining, deleteTrainingById, getTrainingById, getTrainings, updateTrainingById } from "../db/trainings";
-import { addUserTraining, removeUserTraining } from "../db/users";
+import {
+    createTraining,
+    deleteTrainingById,
+    getTrainingById,
+    getTrainings,
+    updateTrainingById,
+} from "../db/trainings";
 
-export const getTraining = async (req: express.Request, res: express.Response) => {
+export const getTraining = async (
+    req: express.Request,
+    res: express.Response
+) => {
     try {
         const { user } = req.body;
 
@@ -19,7 +27,7 @@ export const getTraining = async (req: express.Request, res: express.Response) =
 
         const userTrainingsIds: mongoose.Types.ObjectId[] = user.trainings;
 
-        if (!userTrainingsIds.some((userTrainingId) => userTrainingId.toString() === id)) {
+        if (!user.ownTraining(id)) {
             return res.sendStatus(401);
         }
 
@@ -34,37 +42,51 @@ export const getTraining = async (req: express.Request, res: express.Response) =
         console.log(error);
         return res.sendStatus(400);
     }
-}
+};
 
-export const makeTraining = async (req: express.Request, res: express.Response) => {
+export const makeTraining = async (
+    req: express.Request,
+    res: express.Response
+) => {
     try {
-        const {
-            user,
-            name,
-            notes,
-            sets
-        } = req.body;
+        const { user, name, date, notes, sets } = req.body;
 
         if (!user) {
             return res.sendStatus(500);
         }
 
-        const training = await createTraining({
+        if (!date) {
+            return res.sendStatus(400);
+        }
+
+        const trainingId = await createTraining({
             name: name ?? undefined,
+            date: date,
             notes: notes ?? undefined,
-            sets: sets ?? undefined
+            sets: sets ?? undefined,
         });
 
-        await addUserTraining(user._id, training._id);
+        const updateDate: number = user.addTraining(trainingId);
 
-        return res.status(200).json(training);
+        if (!updateDate) {
+            return res.sendStatus(500);
+        }
+
+        await user.save();
+
+        return res
+            .status(200)
+            .json({ trainingId: trainingId, updateDate: updateDate });
     } catch (error) {
         console.log(error);
         return res.sendStatus(400);
     }
-}
+};
 
-export const deleteTraining = async (req: express.Request, res: express.Response) => {
+export const deleteTraining = async (
+    req: express.Request,
+    res: express.Response
+) => {
     try {
         const { user } = req.body;
         const { id } = req.params;
@@ -77,9 +99,7 @@ export const deleteTraining = async (req: express.Request, res: express.Response
             return res.sendStatus(400);
         }
 
-        const userTrainingsIds: mongoose.Types.ObjectId[] = user.trainings;
-
-        if (!userTrainingsIds.some((userTrainingId) => userTrainingId.toString() === id)) {
+        if (!user.ownTraining(id)) {
             return res.sendStatus(401);
         }
 
@@ -89,56 +109,66 @@ export const deleteTraining = async (req: express.Request, res: express.Response
             return res.sendStatus(400);
         }
 
-        await removeUserTraining(user._id, id);
         await deleteTrainingById(id);
 
-        return res.status(200);
+        const updateDate: number = user.removeTraining(id);
+
+        if (!updateDate) {
+            return res.sendStatus(500);
+        }
+
+        await user.save();
+
+        return res.status(200).json({ updateDate: updateDate });
     } catch (error) {
         console.log(error);
         return res.sendStatus(400);
     }
-}
+};
 
-export const updateTraining = async (req: express.Request, res: express.Response) => {
+export const updateTraining = async (
+    req: express.Request,
+    res: express.Response
+) => {
     try {
         const { id } = req.params;
-        const {
-            user,
-            name,
-            notes,
-            sets
-        } = req.body;
+        const { user, name, date, notes, sets } = req.body;
 
         if (!user) {
             return res.sendStatus(500);
         }
 
-        if (!id) {
+        if (!id || !date) {
             return res.sendStatus(400);
         }
 
-        const userTrainingsIds: mongoose.Types.ObjectId[] = user.trainings;
-
-        if (!userTrainingsIds.some((userTrainingId) => userTrainingId.toString() === id)) {
+        if (!user.ownTraining(id)) {
             return res.sendStatus(401);
         }
 
         const values = {
-            name : name ?? undefined,
+            name: name ?? undefined,
+            date: date,
             notes: notes ?? undefined,
-            sets: sets ?? undefined
+            sets: sets ?? undefined,
         };
 
-        const updatedTraining = await updateTrainingById(id, values);
+        await updateTrainingById(id, values);
 
-        return res.status(200).json(updatedTraining);
+        const updateDate: number = user.refreshTrainingsUpdateDate();
+        await user.save();
+
+        return res.sendStatus(200).json({ updateDate: updateDate });
     } catch (error) {
         console.log(error);
         return res.sendStatus(400);
     }
-}
+};
 
-export const getMyTrainings = async (req: express.Request, res: express.Response) => {
+export const getMyTrainings = async (
+    req: express.Request,
+    res: express.Response
+) => {
     try {
         const { user } = req.body;
 
@@ -157,9 +187,12 @@ export const getMyTrainings = async (req: express.Request, res: express.Response
         console.log(error);
         return res.sendStatus(400);
     }
-}
+};
 
-export const getAllTrainings = async (req: express.Request, res: express.Response) => {
+export const getAllTrainings = async (
+    req: express.Request,
+    res: express.Response
+) => {
     try {
         const trainings = await getTrainings();
 
@@ -168,4 +201,4 @@ export const getAllTrainings = async (req: express.Request, res: express.Respons
         console.log(error);
         return res.sendStatus(400);
     }
-}
+};

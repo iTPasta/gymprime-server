@@ -1,47 +1,66 @@
 import mongoose from "mongoose";
 
 interface IMuscleGroup {
-    name: Record<string, string>,
-    description: Record<string, string>,
-    muscles: mongoose.Types.ObjectId[],
-    image?: string
+    names?: Record<string, string>;
+    descriptions?: Record<string, string>;
+    muscles?: mongoose.Types.ObjectId[];
+    image?: string;
 }
 
 const muscleGroupSchema = new mongoose.Schema<IMuscleGroup>({
-    name: {
+    names: {
         type: Map,
         of: String,
-        required: true
+        required: false,
     },
-    description: {
+    descriptions: {
         type: Map,
         of: String,
-        default: () => {}
+        required: false,
     },
     muscles: {
-        type: [{ type: mongoose.Types.ObjectId, ref: "Muscle", required: true }],
-        default: () => []
+        type: [
+            { type: mongoose.Types.ObjectId, ref: "Muscle", required: true },
+        ],
+        required: false,
     },
     image: {
         type: String,
-        default: () => null
-    }
+        required: false,
+    },
 });
 
-export const MuscleGroupModel = mongoose.model<IMuscleGroup>("MuscleGroup", muscleGroupSchema);
+export const MuscleGroupModel = mongoose.model<IMuscleGroup>(
+    "MuscleGroup",
+    muscleGroupSchema
+);
 
 export const getMuscleGroups = () => MuscleGroupModel.find();
-export const getMuscleGroupByName = (name: string) => MuscleGroupModel.findOne({ name: name });
+export const getMuscleGroupByName = (name: string) =>
+    MuscleGroupModel.findOne({ name: name });
 export const getMuscleGroupById = (id: string) => MuscleGroupModel.findById(id);
-export const createMuscleGroup = (values: Record<string, any>) => new MuscleGroupModel(values)
-.save().then((muscleGroup) => muscleGroup.toObject());
-export const deleteMuscleGroupById = (id: string) => MuscleGroupModel.findOneAndDelete( {_id: id} );
-export const updateMuscleGroupById = (id: string, values: Record<string, any>) => MuscleGroupModel.findByIdAndUpdate(id, { $set: values }, { new: true })
-.then((muscleGroup) => muscleGroup ? muscleGroup.toObject() : null);
+export const createMuscleGroup = (values: Record<string, any>) =>
+    new MuscleGroupModel(values).save().then((muscleGroup) => muscleGroup._id);
+export const deleteMuscleGroupById = (id: string) =>
+    MuscleGroupModel.findByIdAndDelete(id);
+export const updateMuscleGroupById = (
+    id: string,
+    values: Record<string, any>
+) => MuscleGroupModel.findByIdAndUpdate(id, values);
 
-export const addMuscleToGroupByIds = (muscle_group_id: string, muscle_id: string) => { MuscleGroupModel.findByIdAndUpdate(
-    muscle_group_id, { $push: { muscles: muscle_id } }
-)};
-export const removeMuscleFromGroupByIds = (muscle_group_id: string, muscle_id: string) => { MuscleGroupModel.findByIdAndUpdate(
-    muscle_group_id, { $pullAll: { muscles: muscle_id } }
-)};
+export const addMuscleToGroupByIds = (
+    muscleGroupId: string,
+    muscleId: string
+) => {
+    MuscleGroupModel.findByIdAndUpdate(muscleGroupId, {
+        $push: { muscles: muscleId },
+    });
+};
+export const removeMuscleFromGroupByIds = (
+    muscleGroupId: string,
+    muscleId: string
+) => {
+    MuscleGroupModel.findByIdAndUpdate(muscleGroupId, {
+        $pullAll: { muscles: muscleId },
+    });
+};

@@ -1,25 +1,30 @@
 import express from "express";
 import mongoose from "mongoose";
-import { createRecipe, deleteRecipeById, getRecipeById, getRecipes, updateRecipeById } from "../db/recipes";
-import { addUserRecipe, removeUserRecipe } from "../db/users";
+import {
+    createRecipe,
+    deleteRecipeById,
+    getRecipeById,
+    getRecipes,
+    updateRecipeById,
+} from "../db/recipes";
 
-export const getRecipe = async (req: express.Request, res: express.Response) => {
+export const getRecipe = async (
+    req: express.Request,
+    res: express.Response
+) => {
     try {
         const { user } = req.body;
+        const { id } = req.params;
 
         if (!user) {
             return res.sendStatus(500);
         }
 
-        const { id } = req.params;
-
         if (!id) {
             return res.sendStatus(400);
         }
 
-        const userRecipesIds: mongoose.Types.ObjectId[] = user.recipes;
-
-        if (!userRecipesIds.some((userRecipeId) => userRecipeId.toString() === id)) {
+        if (!user.ownRecipe(id)) {
             return res.sendStatus(401);
         }
 
@@ -34,37 +39,46 @@ export const getRecipe = async (req: express.Request, res: express.Response) => 
         console.log(error);
         return res.sendStatus(400);
     }
-}
+};
 
-export const makeRecipe = async (req: express.Request, res: express.Response) => {
+export const makeRecipe = async (
+    req: express.Request,
+    res: express.Response
+) => {
     try {
-        const {
-            user,
-            name,
-            description,
-            ingredients
-        } = req.body;
+        const { user, name, description, ingredients } = req.body;
 
         if (!user) {
             return res.sendStatus(500);
         }
 
-        const recipe = await createRecipe({
+        const recipeId = await createRecipe({
             name: name ?? undefined,
             description: description ?? undefined,
-            ingredients: ingredients ?? undefined
+            ingredients: ingredients ?? undefined,
         });
 
-        await addUserRecipe(user._id, recipe._id);
+        const updateDate: number = user.addRecipe(recipeId);
 
-        return res.status(200).json(recipe);
+        if (!updateDate) {
+            return res.sendStatus(500);
+        }
+
+        await user.save();
+
+        return res
+            .status(200)
+            .json({ recipeId: recipeId, updateDate: updateDate });
     } catch (error) {
         console.log(error);
         return res.sendStatus(400);
     }
-}
+};
 
-export const deleteRecipe = async (req: express.Request, res: express.Response) => {
+export const deleteRecipe = async (
+    req: express.Request,
+    res: express.Response
+) => {
     try {
         const { user } = req.body;
         const { id } = req.params;
@@ -77,9 +91,7 @@ export const deleteRecipe = async (req: express.Request, res: express.Response) 
             return res.sendStatus(400);
         }
 
-        const userRecipesIds: mongoose.Types.ObjectId[] = user.recipes;
-
-        if (!userRecipesIds.some((userRecipeId) => userRecipeId.toString() === id)) {
+        if (!user.ownRecipe(id)) {
             return res.sendStatus(401);
         }
 
@@ -89,25 +101,30 @@ export const deleteRecipe = async (req: express.Request, res: express.Response) 
             return res.sendStatus(400);
         }
 
-        await removeUserRecipe(user._id, id);
         await deleteRecipeById(id);
 
-        return res.status(200);
+        const updateDate: number = user.removeRecipe(id);
+
+        if (!updateDate) {
+            return res.sendStatus(500);
+        }
+
+        await user.save();
+
+        return res.status(200).json({ updateDate: updateDate });
     } catch (error) {
         console.log(error);
         return res.sendStatus(400);
     }
-}
+};
 
-export const updateRecipe = async (req: express.Request, res: express.Response) => {
+export const updateRecipe = async (
+    req: express.Request,
+    res: express.Response
+) => {
     try {
         const { id } = req.params;
-        const {
-            user,
-            name,
-            description,
-            ingredients
-        } = req.body;
+        const { user, name, description, ingredients } = req.body;
 
         if (!user) {
             return res.sendStatus(500);
@@ -117,28 +134,32 @@ export const updateRecipe = async (req: express.Request, res: express.Response) 
             return res.sendStatus(400);
         }
 
-        const userRecipesIds: mongoose.Types.ObjectId[] = user.recipes;
-
-        if (!userRecipesIds.some((userRecipeId) => userRecipeId.toString() === id)) {
+        if (!user.ownRecipe(id)) {
             return res.sendStatus(401);
         }
 
         const values = {
             name: name ?? undefined,
             description: description ?? undefined,
-            ingredients: ingredients ?? undefined
+            ingredients: ingredients ?? undefined,
         };
 
-        const updatedRecipe = await updateRecipeById(id, values);
+        await updateRecipeById(id, values);
 
-        return res.status(200).json(updatedRecipe);
+        const updateDate: number = user.refreshRecipesUpdateDate();
+        user.save();
+
+        return res.send(200).json({ updateDate: updateDate });
     } catch (error) {
         console.log(error);
         return res.sendStatus(400);
     }
-}
+};
 
-export const getMyRecipes = async (req: express.Request, res: express.Response) => {
+export const getMyRecipes = async (
+    req: express.Request,
+    res: express.Response
+) => {
     try {
         const { user } = req.body;
 
@@ -157,9 +178,12 @@ export const getMyRecipes = async (req: express.Request, res: express.Response) 
         console.log(error);
         return res.sendStatus(400);
     }
-}
+};
 
-export const getAllRecipes = async (req: express.Request, res: express.Response) => {
+export const getAllRecipes = async (
+    req: express.Request,
+    res: express.Response
+) => {
     try {
         const recipes = await getRecipes();
 
@@ -168,4 +192,4 @@ export const getAllRecipes = async (req: express.Request, res: express.Response)
         console.log(error);
         return res.sendStatus(400);
     }
-}
+};

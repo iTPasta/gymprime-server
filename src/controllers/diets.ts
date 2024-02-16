@@ -1,7 +1,12 @@
 import express from "express";
 import mongoose from "mongoose";
-import { createDiet, deleteDietById, getDietById, getDiets, updateDietById } from "../db/diets";
-import { addUserDiet, removeUserDiet } from "../db/users";
+import {
+    createDiet,
+    deleteDietById,
+    getDietById,
+    getDiets,
+    updateDietById,
+} from "../db/diets";
 
 export const getDiet = async (req: express.Request, res: express.Response) => {
     try {
@@ -19,7 +24,7 @@ export const getDiet = async (req: express.Request, res: express.Response) => {
 
         const userDietsIds: mongoose.Types.ObjectId[] = user.diets;
 
-        if (!userDietsIds.some((userDietId) => userDietId.toString() === id)) {
+        if (!user.ownDiet(id)) {
             return res.sendStatus(401);
         }
 
@@ -29,12 +34,12 @@ export const getDiet = async (req: express.Request, res: express.Response) => {
             return res.sendStatus(404);
         }
 
-        return res.status(200).json(diet);
+        return res.status(200).json({ diet: diet });
     } catch (error) {
         console.log(error);
         return res.sendStatus(400);
     }
-}
+};
 
 export const makeDiet = async (req: express.Request, res: express.Response) => {
     try {
@@ -44,22 +49,31 @@ export const makeDiet = async (req: express.Request, res: express.Response) => {
             return res.sendStatus(500);
         }
 
-        const diet = await createDiet({
+        const dietId = await createDiet({
             name: name ?? undefined,
             description: description ?? undefined,
-            meals: meals ?? undefined
+            meals: meals ?? undefined,
         });
 
-        await addUserDiet(user._id, diet._id);
+        const updateDate: number = user.addDiet(dietId);
 
-        return res.status(200).json(diet);
+        if (!updateDate) {
+            return res.sendStatus(500);
+        }
+
+        await user.save();
+
+        return res.status(200).json({ dietId: dietId, updateDate: updateDate });
     } catch (error) {
         console.log(error);
         return res.sendStatus(400);
     }
-}
+};
 
-export const deleteDiet = async (req: express.Request, res: express.Response) => {
+export const deleteDiet = async (
+    req: express.Request,
+    res: express.Response
+) => {
     try {
         const { id } = req.params;
         const { user } = req.body;
@@ -72,9 +86,7 @@ export const deleteDiet = async (req: express.Request, res: express.Response) =>
             return res.sendStatus(400);
         }
 
-        const userDietsIds: mongoose.Types.ObjectId[] = user.diets;
-
-        if (!userDietsIds.some((userDietId) => userDietId.toString() === id)) {
+        if (!user.ownDiet(id)) {
             return res.sendStatus(401);
         }
 
@@ -84,17 +96,27 @@ export const deleteDiet = async (req: express.Request, res: express.Response) =>
             return res.sendStatus(400);
         }
 
-        await removeUserDiet(user._id, id);
         await deleteDietById(id);
 
-        return res.status(200);
+        const updateDate: number = user.removeDiet(id);
+
+        if (!updateDate) {
+            return res.sendStatus(500);
+        }
+
+        await user.save();
+
+        return res.status(200).json({ updateDate: updateDate });
     } catch (error) {
         console.log(error);
         return res.sendStatus(400);
     }
-}
+};
 
-export const updateDiet = async (req: express.Request, res: express.Response) => {
+export const updateDiet = async (
+    req: express.Request,
+    res: express.Response
+) => {
     try {
         const { id } = req.params;
         const { user, name, description, meals } = req.body;
@@ -107,28 +129,32 @@ export const updateDiet = async (req: express.Request, res: express.Response) =>
             return res.sendStatus(400);
         }
 
-        const userDietsIds: mongoose.Types.ObjectId[] = user.diets;
-
-        if (!userDietsIds.some((userDietId) => userDietId.toString() === id)) {
+        if (!user.ownDiet(id)) {
             return res.sendStatus(401);
         }
 
         const values = {
             name: name ?? undefined,
             description: description ?? undefined,
-            meals: meals ?? undefined
+            meals: meals ?? undefined,
         };
 
-        const updatedDiet = await updateDietById(id, values);
+        await updateDietById(id, values);
 
-        return res.status(200).json(updatedDiet);
+        const updateDate: number = user.refreshDietsUpdateDate();
+        user.save();
+
+        return res.status(200).json({ updateDate: updateDate });
     } catch (error) {
         console.log(error);
         return res.sendStatus(400);
     }
-}
+};
 
-export const getMyDiets = async (req: express.Request, res: express.Response) => {
+export const getMyDiets = async (
+    req: express.Request,
+    res: express.Response
+) => {
     try {
         const { user } = req.body;
 
@@ -147,9 +173,12 @@ export const getMyDiets = async (req: express.Request, res: express.Response) =>
         console.log(error);
         return res.sendStatus(400);
     }
-}
+};
 
-export const getAllDiets = async (req: express.Request, res: express.Response) => {
+export const getAllDiets = async (
+    req: express.Request,
+    res: express.Response
+) => {
     try {
         const diets = await getDiets();
 
@@ -158,4 +187,4 @@ export const getAllDiets = async (req: express.Request, res: express.Response) =
         console.log(error);
         return res.sendStatus(400);
     }
-}
+};

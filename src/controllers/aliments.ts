@@ -1,7 +1,16 @@
-import { createAliment, deleteAlimentById, getAlimentById, getAliments, updateAlimentById } from "../db/aliments";
+import {
+    createAliment,
+    deleteAlimentById,
+    getAlimentById,
+    getAliments,
+    updateAlimentById,
+} from "../db/aliments";
 import express from "express";
 
-export const getAliment = async (req: express.Request, res: express.Response) => {
+export const getAliment = async (
+    req: express.Request,
+    res: express.Response
+) => {
     try {
         const id = req.params.id;
 
@@ -20,52 +29,58 @@ export const getAliment = async (req: express.Request, res: express.Response) =>
         console.log(error);
         return res.sendStatus(400);
     }
-}
+};
 
-export const makeAliment = async (req: express.Request, res: express.Response) => {
+export const makeAliment = async (
+    req: express.Request,
+    res: express.Response
+) => {
     try {
         const {
-            bar_code,
+            barCode,
             name,
-            ciqual_code,
+            ciqualCode,
             allergens,
             brands,
-            country_lc,
-            ecoscore_grade,
-            ecoscore_score,
-            image_url,
+            countryLc,
+            ecoscoreGrade,
+            ecoscoreScore,
+            imageUrl,
             nutriments,
-            nutriscore_grade,
-            nutriscore_score
+            nutriscoreGrade,
+            nutriscoreScore,
         } = req.body;
 
-        if (!bar_code) {
-            return res.sendStatus(400)
+        if (!barCode || !name) {
+            return res.sendStatus(400);
         }
 
-        const aliment = await createAliment({
-            bar_code: bar_code,
+        const alimentId = await createAliment({
+            barCode: barCode,
             name: name,
-            ciqual_code: ciqual_code ?? undefined,
+            ciqualCode: ciqualCode ?? undefined,
             allergens: allergens ?? undefined,
             brands: brands ?? undefined,
-            country_lc: country_lc ?? undefined,
-            ecoscore_grade: ecoscore_grade ?? undefined,
-            ecoscore_score: ecoscore_score ?? undefined,
-            image_url: image_url ?? undefined,
+            countryLc: countryLc ?? undefined,
+            ecoscoreGrade: ecoscoreGrade ?? undefined,
+            ecoscoreScore: ecoscoreScore ?? undefined,
+            imageUrl: imageUrl ?? undefined,
             nutriments: nutriments ?? undefined,
-            nutriscore_grade: nutriscore_grade ?? undefined,
-            nutriscore_score: nutriscore_score ?? undefined
+            nutriscoreGrade: nutriscoreGrade ?? undefined,
+            nutriscoreScore: nutriscoreScore ?? undefined,
         });
 
-        return res.status(200).json(aliment);
+        return res.status(200).json(alimentId);
     } catch (error) {
         console.log(error);
         return res.sendStatus(400);
     }
-}
+};
 
-export const deleteAliment = async (req: express.Request, res: express.Response) => {
+export const deleteAliment = async (
+    req: express.Request,
+    res: express.Response
+) => {
     try {
         const { id } = req.params;
 
@@ -80,55 +95,61 @@ export const deleteAliment = async (req: express.Request, res: express.Response)
         console.log(error);
         return res.sendStatus(400);
     }
-}
+};
 
-export const updateAliment = async (req: express.Request, res: express.Response) => {
+export const updateAliment = async (
+    req: express.Request,
+    res: express.Response
+) => {
     try {
         const { id } = req.params;
         const {
-            bar_code,
+            barCode,
             name,
-            ciqual_code,
+            ciqualCode,
             allergens,
             brands,
-            country_lc,
-            ecoscore_grade,
-            ecoscore_score,
-            image_url,
+            countryLc,
+            ecoscoreGrade,
+            ecoscoreScore,
+            imageUrl,
             nutriments,
-            nutriscore_grade,
-            nutriscore_score
+            nutriscoreGrade,
+            nutriscoreScore,
         } = req.body;
 
-        if (!id) {
+        if (!id || !barCode || !name) {
             return res.sendStatus(400);
         }
 
         const values = {
-            bar_code: bar_code ?? undefined,
-            name: name ?? undefined,
-            ciqual_code: ciqual_code ?? undefined,
+            barCode: barCode,
+            name: name,
+            ciqualCode: ciqualCode ?? undefined,
             allergens: allergens ?? undefined,
             brands: brands ?? undefined,
-            country_lc: country_lc ?? undefined,
-            ecoscore_grade: ecoscore_grade ?? undefined,
-            ecoscore_score: ecoscore_score ?? undefined,
-            image_url: image_url ?? undefined,
+            countryLc: countryLc ?? undefined,
+            ecoscoreGrade: ecoscoreGrade ?? undefined,
+            ecoscoreScore: ecoscoreScore ?? undefined,
+            imageUrl: imageUrl ?? undefined,
             nutriments: nutriments ?? undefined,
-            nutriscore_grade: nutriscore_grade ?? undefined,
-            nutriscore_score: nutriscore_score ?? undefined
+            nutriscoreGrade: nutriscoreGrade ?? undefined,
+            nutriscoreScore: nutriscoreScore ?? undefined,
         };
 
-        const updatedAliment = await updateAlimentById(id, values);
+        await updateAlimentById(id, values);
 
-        return res.status(200).json(updatedAliment);
+        return res.sendStatus(200);
     } catch (error) {
         console.log(error);
         return res.sendStatus(400);
     }
-}
+};
 
-export const getAllAliments = async (req: express.Request, res: express.Response) => {
+export const getAllAliments = async (
+    req: express.Request,
+    res: express.Response
+) => {
     try {
         const aliments = getAliments();
 
@@ -137,4 +158,4 @@ export const getAllAliments = async (req: express.Request, res: express.Response
         console.log(error);
         return res.sendStatus(400);
     }
-}
+};

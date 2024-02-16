@@ -47,7 +47,7 @@ POST http://localhost:6700/auth/login
 Content-Type: application/json
 
 {
-    "email": "user@email.com",
+    "email": "user@gmail.com",
     "password": "password"
 }
 
@@ -154,8 +154,8 @@ Authorization: Bearer <TOKEN>
 # que cette requête créera, copiez le ici pour le
 # garder : <ID>
 
-GET http://localhost:6700/recipes/
-Authorization: Bearer <TOKEN>
+GET http://localhost:6700/diets/
+Authorization: Bearer 71b3fd23d783a17388601d30444a623f214f4f33e347620f1f40b522d79f065b
 
 
 ###
@@ -222,6 +222,18 @@ Authorization: Bearer <TOKEN>
 
 GET http://localhost:6700/mydata
 Authorization: Bearer <TOKEN>
+
+###
+
+
+
+PUT http://localhost:6700/diets/65ae7bf4fa84f9307efb3eb0
+Content-Type: application/json
+Authorization: Bearer 71b3fd23d783a17388601d30444a623f214f4f33e347620f1f40b522d79f065b
+
+{
+    "description": "Prise de masse."
+}
 
 ###
 

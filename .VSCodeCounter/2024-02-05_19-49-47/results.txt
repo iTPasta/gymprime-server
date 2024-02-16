@@ -1,0 +1,88 @@
+Date : 2024-02-05 19:49:47
+Directory : /home/kilian/gymprime-project/gymprime-server
+Total : 50 files,  5706 codes, 250 comments, 697 blanks, all 6653 lines
+
+Languages
++--------------------+------------+------------+------------+------------+------------+
+| language           | files      | code       | comment    | blank      | total      |
++--------------------+------------+------------+------------+------------+------------+
+| TypeScript         |         41 |      2,779 |          1 |        557 |      3,337 |
+| JSON               |          3 |      2,663 |          0 |          2 |      2,665 |
+| HTTP               |          2 |        222 |        159 |        125 |        506 |
+| YAML               |          1 |         20 |          0 |          3 |         23 |
+| JSON with Comments |          1 |         11 |         90 |          9 |        110 |
+| Docker             |          1 |         10 |          0 |          0 |         10 |
+| Markdown           |          1 |          1 |          0 |          1 |          2 |
++--------------------+------------+------------+------------+------------+------------+
+
+Directories
++---------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                            | files      | code       | comment    | blank      | total      |
++---------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                               |         50 |      5,706 |        250 |        697 |      6,653 |
+| . (Files)                                                                       |          9 |      2,927 |        249 |        140 |      3,316 |
+| src                                                                             |         41 |      2,779 |          1 |        557 |      3,337 |
+| src (Files)                                                                     |          1 |         27 |          0 |         10 |         37 |
+| src/controllers                                                                 |         13 |      1,710 |          1 |        413 |      2,124 |
+| src/db                                                                          |         10 |        798 |          0 |         79 |        877 |
+| src/helpers                                                                     |          2 |         40 |          0 |          7 |         47 |
+| src/middlewares                                                                 |          1 |         40 |          0 |         15 |         55 |
+| src/router                                                                      |         14 |        164 |          0 |         33 |        197 |
++---------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++---------------------------------------------------------------------------------+--------------------+------------+------------+------------+------------+
+| filename                                                                        | language           | code       | comment    | blank      | total      |
++---------------------------------------------------------------------------------+--------------------+------------+------------+------------+------------+
+| /home/kilian/gymprime-project/gymprime-server/Dockerfile                        | Docker             |         10 |          0 |          0 |         10 |
+| /home/kilian/gymprime-project/gymprime-server/README.md                         | Markdown           |          1 |          0 |          1 |          2 |
+| /home/kilian/gymprime-project/gymprime-server/distant-tests.rest                | HTTP               |        109 |         78 |         61 |        248 |
+| /home/kilian/gymprime-project/gymprime-server/docker-compose.yml                | YAML               |         20 |          0 |          3 |         23 |
+| /home/kilian/gymprime-project/gymprime-server/local-tests.rest                  | HTTP               |        113 |         81 |         64 |        258 |
+| /home/kilian/gymprime-project/gymprime-server/nodemon.json                      | JSON               |          5 |          0 |          0 |          5 |
+| /home/kilian/gymprime-project/gymprime-server/package-lock.json                 | JSON               |      2,621 |          0 |          1 |      2,622 |
+| /home/kilian/gymprime-project/gymprime-server/package.json                      | JSON               |         37 |          0 |          1 |         38 |
+| /home/kilian/gymprime-project/gymprime-server/src/controllers/aliments.ts       | TypeScript         |        141 |          0 |         21 |        162 |
+| /home/kilian/gymprime-project/gymprime-server/src/controllers/authentication.ts | TypeScript         |        178 |          0 |         39 |        217 |
+| /home/kilian/gymprime-project/gymprime-server/src/controllers/datas.ts          | TypeScript         |        157 |          1 |         35 |        193 |
+| /home/kilian/gymprime-project/gymprime-server/src/controllers/diets.ts          | TypeScript         |        150 |          0 |         43 |        193 |
+| /home/kilian/gymprime-project/gymprime-server/src/controllers/exercises.ts      | TypeScript         |         98 |          0 |         21 |        119 |
+| /home/kilian/gymprime-project/gymprime-server/src/controllers/meals.ts          | TypeScript         |        280 |          0 |         81 |        361 |
+| /home/kilian/gymprime-project/gymprime-server/src/controllers/muscle_groups.ts  | TypeScript         |         96 |          0 |         20 |        116 |
+| /home/kilian/gymprime-project/gymprime-server/src/controllers/muscles.ts        | TypeScript         |         98 |          0 |         20 |        118 |
+| /home/kilian/gymprime-project/gymprime-server/src/controllers/preferences.ts    | TypeScript         |          8 |          0 |          3 |         11 |
+| /home/kilian/gymprime-project/gymprime-server/src/controllers/programs.ts       | TypeScript         |        170 |          0 |         43 |        213 |
+| /home/kilian/gymprime-project/gymprime-server/src/controllers/recipes.ts        | TypeScript         |        156 |          0 |         40 |        196 |
+| /home/kilian/gymprime-project/gymprime-server/src/controllers/trainings.ts      | TypeScript         |        167 |          0 |         44 |        211 |
+| /home/kilian/gymprime-project/gymprime-server/src/controllers/users.ts          | TypeScript         |         11 |          0 |          3 |         14 |
+| /home/kilian/gymprime-project/gymprime-server/src/db/aliments.ts                | TypeScript         |         56 |          0 |          6 |         62 |
+| /home/kilian/gymprime-project/gymprime-server/src/db/diets.ts                   | TypeScript         |         26 |          0 |          6 |         32 |
+| /home/kilian/gymprime-project/gymprime-server/src/db/exercises.ts               | TypeScript         |         63 |          0 |          6 |         69 |
+| /home/kilian/gymprime-project/gymprime-server/src/db/meals.ts                   | TypeScript         |         68 |          0 |          8 |         76 |
+| /home/kilian/gymprime-project/gymprime-server/src/db/muscle_groups.ts           | TypeScript         |         61 |          0 |          6 |         67 |
+| /home/kilian/gymprime-project/gymprime-server/src/db/muscles.ts                 | TypeScript         |         65 |          0 |          7 |         72 |
+| /home/kilian/gymprime-project/gymprime-server/src/db/programs.ts                | TypeScript         |         86 |          0 |          7 |         93 |
+| /home/kilian/gymprime-project/gymprime-server/src/db/recipes.ts                 | TypeScript         |         57 |          0 |          7 |         64 |
+| /home/kilian/gymprime-project/gymprime-server/src/db/trainings.ts               | TypeScript         |         51 |          0 |          6 |         57 |
+| /home/kilian/gymprime-project/gymprime-server/src/db/users.ts                   | TypeScript         |        265 |          0 |         20 |        285 |
+| /home/kilian/gymprime-project/gymprime-server/src/helpers/error.ts              | TypeScript         |          4 |          0 |          0 |          4 |
+| /home/kilian/gymprime-project/gymprime-server/src/helpers/index.ts              | TypeScript         |         36 |          0 |          7 |         43 |
+| /home/kilian/gymprime-project/gymprime-server/src/index.ts                      | TypeScript         |         27 |          0 |         10 |         37 |
+| /home/kilian/gymprime-project/gymprime-server/src/middlewares/index.ts          | TypeScript         |         40 |          0 |         15 |         55 |
+| /home/kilian/gymprime-project/gymprime-server/src/router/aliments.ts            | TypeScript         |         10 |          0 |          2 |         12 |
+| /home/kilian/gymprime-project/gymprime-server/src/router/authentication.ts      | TypeScript         |          8 |          0 |          2 |         10 |
+| /home/kilian/gymprime-project/gymprime-server/src/router/datas.ts               | TypeScript         |         14 |          0 |          3 |         17 |
+| /home/kilian/gymprime-project/gymprime-server/src/router/diets.ts               | TypeScript         |         11 |          0 |          2 |         13 |
+| /home/kilian/gymprime-project/gymprime-server/src/router/exercises.ts           | TypeScript         |         10 |          0 |          3 |         13 |
+| /home/kilian/gymprime-project/gymprime-server/src/router/index.ts               | TypeScript         |         31 |          0 |          5 |         36 |
+| /home/kilian/gymprime-project/gymprime-server/src/router/meals.ts               | TypeScript         |         15 |          0 |          2 |         17 |
+| /home/kilian/gymprime-project/gymprime-server/src/router/muscle_groups.ts       | TypeScript         |         10 |          0 |          2 |         12 |
+| /home/kilian/gymprime-project/gymprime-server/src/router/muscles.ts             | TypeScript         |         10 |          0 |          2 |         12 |
+| /home/kilian/gymprime-project/gymprime-server/src/router/preferences.ts         | TypeScript         |          6 |          0 |          2 |          8 |
+| /home/kilian/gymprime-project/gymprime-server/src/router/programs.ts            | TypeScript         |         11 |          0 |          2 |         13 |
+| /home/kilian/gymprime-project/gymprime-server/src/router/recipes.ts             | TypeScript         |         11 |          0 |          2 |         13 |
+| /home/kilian/gymprime-project/gymprime-server/src/router/trainings.ts           | TypeScript         |         11 |          0 |          2 |         13 |
+| /home/kilian/gymprime-project/gymprime-server/src/router/users.ts               | TypeScript         |          6 |          0 |          2 |          8 |
+| /home/kilian/gymprime-project/gymprime-server/tsconfig.json                     | JSON with Comments |         11 |         90 |          9 |        110 |
+| Total                                                                           |                    |      5,706 |        250 |        697 |      6,653 |
++---------------------------------------------------------------------------------+--------------------+------------+------------+------------+------------+

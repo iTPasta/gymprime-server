@@ -1,0 +1,13 @@
+"filename", "language", "TypeScript", "comment", "blank", "total"
+"/home/kilian/gymprime-project/gymprime-server/src/controllers/datas.ts", "TypeScript", 157, 1, 35, 193
+"/home/kilian/gymprime-project/gymprime-server/src/controllers/diets.ts", "TypeScript", 8, 0, 5, 13
+"/home/kilian/gymprime-project/gymprime-server/src/controllers/meals.ts", "TypeScript", 6, 0, 3, 9
+"/home/kilian/gymprime-project/gymprime-server/src/controllers/programs.ts", "TypeScript", 2, 0, 5, 7
+"/home/kilian/gymprime-project/gymprime-server/src/controllers/recipes.ts", "TypeScript", -4, 0, 2, -2
+"/home/kilian/gymprime-project/gymprime-server/src/controllers/trainings.ts", "TypeScript", 2, 0, 5, 7
+"/home/kilian/gymprime-project/gymprime-server/src/controllers/users_data.ts", "TypeScript", -46, -1, -9, -56
+"/home/kilian/gymprime-project/gymprime-server/src/db/users.ts", "TypeScript", 130, 0, 11, 141
+"/home/kilian/gymprime-project/gymprime-server/src/helpers/index.ts", "TypeScript", 15, 0, -2, 13
+"/home/kilian/gymprime-project/gymprime-server/src/router/datas.ts", "TypeScript", 14, 0, 3, 17
+"/home/kilian/gymprime-project/gymprime-server/src/router/users_data.ts", "TypeScript", -6, 0, -2, -8
+"Total", "-", 278, 0, 56, 334

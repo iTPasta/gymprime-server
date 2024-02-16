@@ -1,7 +1,16 @@
 import express from "express";
-import { createMuscleGroup, deleteMuscleGroupById, getMuscleGroupById, getMuscleGroups, updateMuscleGroupById } from "../db/muscle_groups";
+import {
+    createMuscleGroup,
+    deleteMuscleGroupById,
+    getMuscleGroupById,
+    getMuscleGroups,
+    updateMuscleGroupById,
+} from "../db/muscle_groups";
 
-export const getMuscleGroup = async (req: express.Request, res: express.Response) => {
+export const getMuscleGroup = async (
+    req: express.Request,
+    res: express.Response
+) => {
     try {
         const id = req.params.id;
 
@@ -20,36 +29,33 @@ export const getMuscleGroup = async (req: express.Request, res: express.Response
         console.log(error);
         return res.sendStatus(400);
     }
-}
+};
 
-export const makeMuscleGroup = async (req: express.Request, res: express.Response) => {
+export const makeMuscleGroup = async (
+    req: express.Request,
+    res: express.Response
+) => {
     try {
-        const {
-            name,
-            description,
-            muscles,
-            image
-        } = req.body;
+        const { names, descriptions, muscles, image } = req.body;
 
-        if (!name) {
-            return res.sendStatus(400)
-        }
-
-        const muscleGroup = await createMuscleGroup({
-            name: name,
-            description: description ?? undefined,
+        const muscleGroupId = await createMuscleGroup({
+            names: names ?? undefined,
+            descriptions: descriptions ?? undefined,
             muscles: muscles ?? undefined,
-            image: image ?? undefined
+            image: image ?? undefined,
         });
 
-        return res.status(200).json(muscleGroup);
+        return res.status(200).json(muscleGroupId);
     } catch (error) {
         console.log(error);
         return res.sendStatus(400);
     }
-}
+};
 
-export const deleteMuscleGroup = async (req: express.Request, res: express.Response) => {
+export const deleteMuscleGroup = async (
+    req: express.Request,
+    res: express.Response
+) => {
     try {
         const { id } = req.params;
 
@@ -59,44 +65,45 @@ export const deleteMuscleGroup = async (req: express.Request, res: express.Respo
 
         await deleteMuscleGroupById(id);
 
-        return res.status(200);
+        return res.sendStatus(200);
     } catch (error) {
         console.log(error);
         return res.sendStatus(400);
     }
-}
+};
 
-export const updateMuscleGroup = async (req: express.Request, res: express.Response) => {
+export const updateMuscleGroup = async (
+    req: express.Request,
+    res: express.Response
+) => {
     try {
         const { id } = req.params;
-        const {
-            name,
-            description,
-            muscles,
-            image
-        } = req.body;
+        const { names, descriptions, muscles, image } = req.body;
 
         if (!id) {
             return res.sendStatus(400);
         }
 
         const values = {
-            name: name ?? undefined,
-            description: description ?? undefined,
+            names: names ?? undefined,
+            descriptions: descriptions ?? undefined,
             muscles: muscles ?? undefined,
-            image: image ?? undefined
+            image: image ?? undefined,
         };
 
-        const updatedMuscleGroup = await updateMuscleGroupById(id, values);
+        await updateMuscleGroupById(id, values);
 
-        return res.status(200).json(updatedMuscleGroup);
+        return res.status(200);
     } catch (error) {
         console.log(error);
         return res.sendStatus(400);
     }
-}
+};
 
-export const getAllMuscleGroups = async (req: express.Request, res: express.Response) => {
+export const getAllMuscleGroups = async (
+    req: express.Request,
+    res: express.Response
+) => {
     try {
         const muscleGroups = getMuscleGroups();
 
@@ -105,4 +112,4 @@ export const getAllMuscleGroups = async (req: express.Request, res: express.Resp
         console.log(error);
         return res.sendStatus(400);
     }
-}
+};
