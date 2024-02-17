@@ -64,17 +64,18 @@ export const makeProgram = async (
             goal: goal ?? undefined,
         });
 
-        const updateDate: number = user.addProgram(programId);
+        const programsLastUpdate: number = user.addProgram(programId);
 
-        if (!updateDate) {
+        if (!programsLastUpdate) {
             return res.sendStatus(500);
         }
 
         await user.save();
 
-        return res
-            .status(200)
-            .json({ programId: programId, updateDate: updateDate });
+        return res.status(200).json({
+            programId: programId,
+            programsLastUpdate: programsLastUpdate,
+        });
     } catch (error) {
         console.log(error);
         return res.sendStatus(400);
@@ -109,15 +110,15 @@ export const deleteProgram = async (
 
         await deleteProgramById(id);
 
-        const updateDate: number = user.deleteDiet(id);
+        const programsLastUpdate: number = user.deleteDiet(id);
 
-        if (!updateDate) {
+        if (!programsLastUpdate) {
             return res.sendStatus(500);
         }
 
         user.save();
 
-        return res.status(200).json({ updateDate: updateDate });
+        return res.status(200).json({ programsLastUpdate: programsLastUpdate });
     } catch (error) {
         console.log(error);
         return res.sendStatus(400);
@@ -155,10 +156,10 @@ export const updateProgram = async (
 
         await updateProgramById(id, values);
 
-        const updateDate: number = user.refreshProgramsUpdateDate();
+        const programsLastUpdate: number = user.refreshProgramsLastUpdate();
         user.save();
 
-        return res.status(200).json({ updateDate: updateDate });
+        return res.status(200).json({ programsLastUpdate: programsLastUpdate });
     } catch (error) {
         console.log(error);
         return res.sendStatus(400);

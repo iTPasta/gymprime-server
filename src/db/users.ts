@@ -142,35 +142,35 @@ userSchema.methods.ownTraining = function (trainingId: string) {
     ) as boolean;
 };
 
-userSchema.methods.refreshPreferencesUpdateDate = function () {
+userSchema.methods.refreshPreferencesLastUpdate = function () {
     this.lastUpdates.preferences = Date.now();
 };
 
-userSchema.methods.refreshRecipesUpdateDate = function () {
+userSchema.methods.refreshRecipesLastUpdate = function () {
     const updateTime = Date.now();
     this.lastUpdates.recipes = updateTime;
     return updateTime;
 };
 
-userSchema.methods.refreshMealsUpdateDate = function () {
+userSchema.methods.refreshMealsLastUpdate = function () {
     const updateTime = Date.now();
     this.lastUpdates.meals = updateTime;
     return updateTime;
 };
 
-userSchema.methods.refreshDietsUpdateDate = function () {
+userSchema.methods.refreshDietsLastUpdate = function () {
     const updateTime = Date.now();
     this.lastUpdates.diets = updateTime;
     return updateTime;
 };
 
-userSchema.methods.refreshProgramsUpdateDate = function () {
+userSchema.methods.refreshProgramsLastUpdate = function () {
     const updateTime = Date.now();
     this.lastUpdates.programs = updateTime;
     return updateTime;
 };
 
-userSchema.methods.refreshTrainingsUpdateDate = function () {
+userSchema.methods.refreshTrainingsLastUpdate = function () {
     const updateTime = Date.now();
     this.lastUpdates.trainings = updateTime;
     return updateTime;
@@ -179,7 +179,7 @@ userSchema.methods.refreshTrainingsUpdateDate = function () {
 userSchema.methods.addRecipe = function (recipeId: string) {
     if (!this.ownRecipe(recipeId)) {
         this.recipes.push(new mongoose.Types.ObjectId(recipeId));
-        return this.refreshRecipesUpdateDate();
+        return this.refreshRecipesLastUpdate();
     } else {
         return NaN;
     }
@@ -187,7 +187,7 @@ userSchema.methods.addRecipe = function (recipeId: string) {
 userSchema.methods.addMeal = function (mealId: string) {
     if (!this.ownMeal(mealId)) {
         this.meals.push(new mongoose.Types.ObjectId(mealId));
-        return this.refreshMealsUpdateDate();
+        return this.refreshMealsLastUpdate();
     } else {
         return NaN;
     }
@@ -195,7 +195,7 @@ userSchema.methods.addMeal = function (mealId: string) {
 userSchema.methods.addDiet = function (dietId: string) {
     if (!this.ownDiet(dietId)) {
         this.diets.push(new mongoose.Types.ObjectId(dietId));
-        return this.refreshDietsUpdateDate();
+        return this.refreshDietsLastUpdate();
     } else {
         return NaN;
     }
@@ -203,7 +203,7 @@ userSchema.methods.addDiet = function (dietId: string) {
 userSchema.methods.addProgram = function (programId: string) {
     if (!this.ownProgram(programId)) {
         this.programs.push(new mongoose.Types.ObjectId(programId));
-        return this.refreshProgramsUpdateDate();
+        return this.refreshProgramsLastUpdate();
     } else {
         return NaN;
     }
@@ -211,7 +211,7 @@ userSchema.methods.addProgram = function (programId: string) {
 userSchema.methods.addTraining = function (trainingId: string) {
     if (!this.ownTraining(trainingId)) {
         this.trainings.push(new mongoose.Types.ObjectId(trainingId));
-        return this.refreshTrainingsUpdateDate();
+        return this.refreshTrainingsLastUpdate();
     } else {
         return NaN;
     }
@@ -221,16 +221,16 @@ userSchema.methods.removeRecipe = function (recipeId: string) {
     const index = this.recipes.indexOf(recipeId);
     if (index > -1) {
         this.recipes.splice(index, 1);
-        return this.refreshRecipesUpdateDate();
+        return this.refreshRecipesLastUpdate();
     } else {
         return NaN;
     }
 };
 userSchema.methods.removeMeal = function (mealId: string) {
-    const index = this.mels.indexOf(mealId);
+    const index = this.meals.indexOf(mealId);
     if (index > -1) {
         this.meals.splice(index, 1);
-        return this.refreshMealsUpdateDate();
+        return this.refreshMealsLastUpdate();
     } else {
         return NaN;
     }
@@ -239,7 +239,7 @@ userSchema.methods.removeDiet = function (dietId: string) {
     const index = this.diets.indexOf(dietId);
     if (index > -1) {
         this.diets.splice(index, 1);
-        return this.refreshDietsUpdateDate();
+        return this.refreshDietsLastUpdate();
     } else {
         return NaN;
     }
@@ -248,7 +248,7 @@ userSchema.methods.removeProgram = function (programId: string) {
     const index = this.programs.indexOf(programId);
     if (index > -1) {
         this.programs.splice(index, 1);
-        return this.refreshProgramsUpdateDate();
+        return this.refreshProgramsLastUpdate();
     } else {
         return NaN;
     }
@@ -257,7 +257,7 @@ userSchema.methods.removeTraining = function (trainingId: string) {
     const index = this.trainings.indexOf(trainingId);
     if (index > -1) {
         this.trainings.splice(index, 1);
-        return this.refreshTrainingsUpdateDate();
+        return this.refreshTrainingsLastUpdate();
     } else {
         return NaN;
     }

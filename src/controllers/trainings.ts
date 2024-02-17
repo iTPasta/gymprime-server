@@ -66,17 +66,18 @@ export const makeTraining = async (
             sets: sets ?? undefined,
         });
 
-        const updateDate: number = user.addTraining(trainingId);
+        const trainingsLastUpdate: number = user.addTraining(trainingId);
 
-        if (!updateDate) {
+        if (!trainingsLastUpdate) {
             return res.sendStatus(500);
         }
 
         await user.save();
 
-        return res
-            .status(200)
-            .json({ trainingId: trainingId, updateDate: updateDate });
+        return res.status(200).json({
+            trainingId: trainingId,
+            trainingsLastUpdate: trainingsLastUpdate,
+        });
     } catch (error) {
         console.log(error);
         return res.sendStatus(400);
@@ -111,15 +112,17 @@ export const deleteTraining = async (
 
         await deleteTrainingById(id);
 
-        const updateDate: number = user.removeTraining(id);
+        const trainingsLastUpdate: number = user.removeTraining(id);
 
-        if (!updateDate) {
+        if (!trainingsLastUpdate) {
             return res.sendStatus(500);
         }
 
         await user.save();
 
-        return res.status(200).json({ updateDate: updateDate });
+        return res
+            .status(200)
+            .json({ trainingsLastUpdate: trainingsLastUpdate });
     } catch (error) {
         console.log(error);
         return res.sendStatus(400);
@@ -155,10 +158,12 @@ export const updateTraining = async (
 
         await updateTrainingById(id, values);
 
-        const updateDate: number = user.refreshTrainingsUpdateDate();
+        const trainingsLastUpdate: number = user.refreshTrainingsLastUpdate();
         await user.save();
 
-        return res.sendStatus(200).json({ updateDate: updateDate });
+        return res
+            .sendStatus(200)
+            .json({ trainingsLastUpdate: trainingsLastUpdate });
     } catch (error) {
         console.log(error);
         return res.sendStatus(400);

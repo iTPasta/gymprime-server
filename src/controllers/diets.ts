@@ -55,15 +55,17 @@ export const makeDiet = async (req: express.Request, res: express.Response) => {
             meals: meals ?? undefined,
         });
 
-        const updateDate: number = user.addDiet(dietId);
+        const dietsLastUpdate: number = user.addDiet(dietId);
 
-        if (!updateDate) {
+        if (!dietsLastUpdate) {
             return res.sendStatus(500);
         }
 
         await user.save();
 
-        return res.status(200).json({ dietId: dietId, updateDate: updateDate });
+        return res
+            .status(201)
+            .json({ dietId: dietId, dietsLastUpdate: dietsLastUpdate });
     } catch (error) {
         console.log(error);
         return res.sendStatus(400);
@@ -98,15 +100,15 @@ export const deleteDiet = async (
 
         await deleteDietById(id);
 
-        const updateDate: number = user.removeDiet(id);
+        const dietsLastUpdate: number = user.removeDiet(id);
 
-        if (!updateDate) {
+        if (!dietsLastUpdate) {
             return res.sendStatus(500);
         }
 
         await user.save();
 
-        return res.status(200).json({ updateDate: updateDate });
+        return res.status(200).json({ dietsLastUpdate: dietsLastUpdate });
     } catch (error) {
         console.log(error);
         return res.sendStatus(400);
@@ -141,10 +143,10 @@ export const updateDiet = async (
 
         await updateDietById(id, values);
 
-        const updateDate: number = user.refreshDietsUpdateDate();
+        const dietsLastUpdate: number = user.refreshDietsLastUpdate();
         user.save();
 
-        return res.status(200).json({ updateDate: updateDate });
+        return res.status(200).json({ dietsLastUpdate: dietsLastUpdate });
     } catch (error) {
         console.log(error);
         return res.sendStatus(400);
@@ -168,7 +170,11 @@ export const getMyDiets = async (
             dietsArray.push(await getDietById(id));
         }
 
-        return res.status(200).json(dietsArray);
+        const dietsLastUpdate: number = user.lastUpdates.diets;
+
+        return res
+            .status(200)
+            .json({ diets: dietsArray, dietsLastUpdate: dietsLastUpdate });
     } catch (error) {
         console.log(error);
         return res.sendStatus(400);

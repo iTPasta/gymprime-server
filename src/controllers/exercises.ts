@@ -47,7 +47,7 @@ export const makeExercise = async (
             image: image ?? undefined,
         });
 
-        return res.status(200).json(exerciseId);
+        return res.status(201).json(exerciseId);
     } catch (error) {
         console.log(error);
         return res.sendStatus(400);
@@ -110,7 +110,7 @@ export const getAllExercises = async (
     try {
         const exercises = await getExercises();
 
-        return res.status(200).json(exercises);
+        return res.status(200).json({ exercises: exercises });
     } catch (error) {
         console.log(error);
         return res.sendStatus(400);

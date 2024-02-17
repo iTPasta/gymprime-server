@@ -26,16 +26,13 @@ export const login = async (req: express.Request, res: express.Response) => {
                 .end();
         }
 
-        let user;
-        if (email) {
-            user = await getUserByEmail(email).select(
-                "+authentication.salt +authentication.password"
-            );
-        } else {
-            user = await getUserByUsername(username).select(
-                "+authentication.salt +authentication.password"
-            );
-        }
+        const user = email
+            ? await getUserByEmail(email).select(
+                  "+authentication.salt +authentication.password"
+              )
+            : await getUserByUsername(username).select(
+                  "+authentication.salt +authentication.password"
+              );
 
         if (!user) {
             return res

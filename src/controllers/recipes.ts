@@ -58,9 +58,9 @@ export const makeRecipe = async (
             ingredients: ingredients ?? undefined,
         });
 
-        const updateDate: number = user.addRecipe(recipeId);
+        const recipesLastUpdate: number = user.addRecipe(recipeId);
 
-        if (!updateDate) {
+        if (!recipesLastUpdate) {
             return res.sendStatus(500);
         }
 
@@ -68,7 +68,7 @@ export const makeRecipe = async (
 
         return res
             .status(200)
-            .json({ recipeId: recipeId, updateDate: updateDate });
+            .json({ recipeId: recipeId, recipesLastUpdate: recipesLastUpdate });
     } catch (error) {
         console.log(error);
         return res.sendStatus(400);
@@ -103,15 +103,15 @@ export const deleteRecipe = async (
 
         await deleteRecipeById(id);
 
-        const updateDate: number = user.removeRecipe(id);
+        const recipesLastUpdate: number = user.removeRecipe(id);
 
-        if (!updateDate) {
+        if (!recipesLastUpdate) {
             return res.sendStatus(500);
         }
 
         await user.save();
 
-        return res.status(200).json({ updateDate: updateDate });
+        return res.status(200).json({ recipesLastUpdate: recipesLastUpdate });
     } catch (error) {
         console.log(error);
         return res.sendStatus(400);
@@ -146,10 +146,10 @@ export const updateRecipe = async (
 
         await updateRecipeById(id, values);
 
-        const updateDate: number = user.refreshRecipesUpdateDate();
+        const recipesLastUpdate: number = user.refreshRecipesLastUpdate();
         user.save();
 
-        return res.send(200).json({ updateDate: updateDate });
+        return res.send(200).json({ recipesLastUpdate: recipesLastUpdate });
     } catch (error) {
         console.log(error);
         return res.sendStatus(400);

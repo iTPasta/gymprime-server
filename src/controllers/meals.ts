@@ -60,15 +60,17 @@ export const makeMeal = async (req: express.Request, res: express.Response) => {
             recipes: recipes ?? undefined,
         });
 
-        const updateDate: number = user.addMeal();
+        const mealsLastUpdate: number = user.addMeal();
 
-        if (!updateDate) {
+        if (!mealsLastUpdate) {
             return res.sendStatus(500);
         }
 
         await user.save();
 
-        return res.status(200).json({ mealId: mealId, updateDate: updateDate });
+        return res
+            .status(200)
+            .json({ mealId: mealId, mealsLastUpdate: mealsLastUpdate });
     } catch (error) {
         console.log(error);
         return res.sendStatus(400);
@@ -103,15 +105,15 @@ export const deleteMeal = async (
 
         await deleteMealById(id);
 
-        const updateDate: number = user.refreshMealsUpdateDate(id);
+        const mealsLastUpdate: number = user.refreshMealsLastUpdate(id);
 
-        if (!updateDate) {
+        if (!mealsLastUpdate) {
             return res.sendStatus(500);
         }
 
         await user.save();
 
-        return res.status(200).json({ updateDate: updateDate });
+        return res.status(200).json({ mealsLastUpdate: mealsLastUpdate });
     } catch (error) {
         console.log(error);
         return res.sendStatus(400);
@@ -147,10 +149,10 @@ export const updateMeal = async (
 
         await updateMealById(id, values);
 
-        const updateDate: number = user.refreshMealsUpdateDate();
+        const mealsLastUpdate: number = user.refreshMealsLastUpdate();
         user.save();
 
-        return res.status(200).json({ updateDate: updateDate });
+        return res.status(200).json({ mealsLastUpdate: mealsLastUpdate });
     } catch (error) {
         console.log(error);
         return res.sendStatus(400);
