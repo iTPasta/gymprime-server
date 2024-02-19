@@ -15,32 +15,32 @@ export const getTraining = async (
     try {
         const { user } = req.body;
 
-        if (!user) {
-            return res.sendStatus(500);
-        }
-
         const { id } = req.params;
 
         if (!id) {
-            return res.sendStatus(400);
+            return res
+                .status(400)
+                .json({ error: "No id parameter found in the request." });
         }
 
-        const userTrainingsIds: mongoose.Types.ObjectId[] = user.trainings;
-
         if (!user.ownTraining(id)) {
-            return res.sendStatus(401);
+            return res.status(401).json({
+                error: "User does not own the requested training.",
+            });
         }
 
         const training = await getTrainingById(id);
 
         if (!training) {
-            return res.sendStatus(400);
+            return res.status(400).json({
+                error: "Database does not contain any training corresponding to the provided id.",
+            });
         }
 
-        return res.status(200).json(training);
+        return res.status(200).json({ training: training });
     } catch (error) {
         console.log(error);
-        return res.sendStatus(400);
+        return res.status(500).json({ error: "Server-side exception thrown." });
     }
 };
 
@@ -51,12 +51,10 @@ export const makeTraining = async (
     try {
         const { user, name, date, notes, sets } = req.body;
 
-        if (!user) {
-            return res.sendStatus(500);
-        }
-
         if (!date) {
-            return res.sendStatus(400);
+            return res
+                .status(400)
+                .json({ error: "Missing date in request body." });
         }
 
         const trainingId = await createTraining({
@@ -67,11 +65,6 @@ export const makeTraining = async (
         });
 
         const trainingsLastUpdate: number = user.addTraining(trainingId);
-
-        if (!trainingsLastUpdate) {
-            return res.sendStatus(500);
-        }
-
         await user.save();
 
         return res.status(200).json({
@@ -80,7 +73,7 @@ export const makeTraining = async (
         });
     } catch (error) {
         console.log(error);
-        return res.sendStatus(400);
+        return res.status(500).json({ error: "Server-side exception thrown." });
     }
 };
 
@@ -92,32 +85,29 @@ export const deleteTraining = async (
         const { user } = req.body;
         const { id } = req.params;
 
-        if (!user) {
-            return res.sendStatus(500);
-        }
-
         if (!id) {
-            return res.sendStatus(400);
+            return res
+                .status(400)
+                .json({ error: "No id parameter found in the request." });
         }
 
         if (!user.ownTraining(id)) {
-            return res.sendStatus(401);
+            return res.status(401).json({
+                error: "User does not own the training corresponding to the provided id.",
+            });
         }
 
         const training = await getTrainingById(id);
 
         if (!training) {
-            return res.sendStatus(400);
+            return res.status(400).json({
+                error: "Database does not contain any training corresponding to the provided id.",
+            });
         }
 
         await deleteTrainingById(id);
 
         const trainingsLastUpdate: number = user.removeTraining(id);
-
-        if (!trainingsLastUpdate) {
-            return res.sendStatus(500);
-        }
-
         await user.save();
 
         return res
@@ -125,7 +115,7 @@ export const deleteTraining = async (
             .json({ trainingsLastUpdate: trainingsLastUpdate });
     } catch (error) {
         console.log(error);
-        return res.sendStatus(400);
+        return res.status(500).json({ error: "Server-side exception thrown." });
     }
 };
 
@@ -137,16 +127,16 @@ export const updateTraining = async (
         const { id } = req.params;
         const { user, name, date, notes, sets } = req.body;
 
-        if (!user) {
-            return res.sendStatus(500);
-        }
-
         if (!id || !date) {
-            return res.sendStatus(400);
+            return res.status(400).json({
+                error: "Missing id in request parameters, or date in request body.",
+            });
         }
 
         if (!user.ownTraining(id)) {
-            return res.sendStatus(401);
+            return res.status(401).json({
+                error: "User does not own the training corresponding to the provided id.",
+            });
         }
 
         const values = {
@@ -162,11 +152,11 @@ export const updateTraining = async (
         await user.save();
 
         return res
-            .sendStatus(200)
+            .status(200)
             .json({ trainingsLastUpdate: trainingsLastUpdate });
     } catch (error) {
         console.log(error);
-        return res.sendStatus(400);
+        return res.status(500).json({ error: "Server-side exception thrown." });
     }
 };
 
@@ -177,20 +167,16 @@ export const getMyTrainings = async (
     try {
         const { user } = req.body;
 
-        if (!user) {
-            return res.sendStatus(500);
-        }
-
         const trainingsIds = user.trainings;
-        const trainingsArray = [];
+        const trainings = [];
         for (const id of trainingsIds) {
-            trainingsArray.push(await getTrainingById(id));
+            trainings.push(await getTrainingById(id));
         }
 
-        res.status(200).json(trainingsArray);
+        res.status(200).json({ trainings: trainings });
     } catch (error) {
         console.log(error);
-        return res.sendStatus(400);
+        return res.status(500).json({ error: "Server-side exception thrown." });
     }
 };
 
@@ -201,9 +187,9 @@ export const getAllTrainings = async (
     try {
         const trainings = await getTrainings();
 
-        return res.status(200).json(trainings);
+        return res.status(200).json({ trainings: trainings });
     } catch (error) {
         console.log(error);
-        return res.sendStatus(400);
+        return res.status(500).json({ error: "Server-side exception thrown." });
     }
 };

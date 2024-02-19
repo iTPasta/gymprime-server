@@ -8,7 +8,16 @@ interface IExercise {
     image?: string;
 }
 
-const exerciseSchema = new mongoose.Schema<IExercise>({
+interface IExerciseMethods {}
+
+interface IExerciseModel
+    extends mongoose.Model<IExercise, {}, IExerciseMethods> {}
+
+const exerciseSchema = new mongoose.Schema<
+    IExercise,
+    IExerciseModel,
+    IExerciseMethods
+>({
     names: {
         type: Map,
         of: String,
@@ -36,7 +45,7 @@ const exerciseSchema = new mongoose.Schema<IExercise>({
     },
 });
 
-export const ExerciseModel = mongoose.model<IExercise>(
+export const ExerciseModel = mongoose.model<IExercise, IExerciseModel>(
     "Exercise",
     exerciseSchema
 );

@@ -6,6 +6,7 @@ import {
     getMuscles,
     updateMuscleById,
 } from "../db/muscles";
+import { GlobalModel } from "../db/globals";
 
 export const getMuscle = async (
     req: express.Request,
@@ -15,19 +16,25 @@ export const getMuscle = async (
         const id = req.params.id;
 
         if (!id) {
-            return res.sendStatus(400);
+            return res
+                .status(400)
+                .json({ error: "No id parameter found in the request." });
         }
 
         const muscle = await getMuscleById(id);
 
         if (!muscle) {
-            return res.sendStatus(404);
+            return res
+                .status(404)
+                .json({
+                    error: "Database does not contain any muscle corresponding to the provided id.",
+                });
         }
 
-        return res.status(200).json(muscle);
+        return res.status(200).json({ muscle: muscle });
     } catch (error) {
         console.log(error);
-        return res.sendStatus(400);
+        return res.status(500).json({ error: "Server-side exception thrown." });
     }
 };
 
@@ -46,10 +53,15 @@ export const makeMuscle = async (
             image: image ?? undefined,
         });
 
-        return res.status(200).json(muscleId);
+        const musclesLastUpdate =
+            await GlobalModel.refreshMusclesLastUpdateAndSave();
+
+        return res
+            .status(200)
+            .json({ muscleId: muscleId, musclesLastUpdate: musclesLastUpdate });
     } catch (error) {
         console.log(error);
-        return res.sendStatus(400);
+        return res.status(500).json({ error: "Server-side exception thrown." });
     }
 };
 
@@ -61,15 +73,20 @@ export const deleteMuscle = async (
         const { id } = req.params;
 
         if (!id) {
-            return res.sendStatus(400);
+            return res
+                .status(400)
+                .json({ error: "No id parameter found in the request." });
         }
 
         await deleteMuscleById(id);
 
-        return res.status(200);
+        const musclesLastUpdate =
+            await GlobalModel.refreshMusclesLastUpdateAndSave();
+
+        return res.status(200).json({ musclesLastUpdate: musclesLastUpdate });
     } catch (error) {
         console.log(error);
-        return res.sendStatus(400);
+        return res.status(500).json({ error: "Server-side exception thrown." });
     }
 };
 
@@ -82,7 +99,9 @@ export const updateMuscle = async (
         const { names, descriptions, exercises, muscleGroup, image } = req.body;
 
         if (!id) {
-            return res.sendStatus(400);
+            return res
+                .status(400)
+                .json({ error: "No id parameter found in the request." });
         }
 
         const values = {
@@ -95,10 +114,13 @@ export const updateMuscle = async (
 
         await updateMuscleById(id, values);
 
-        return res.sendStatus(200);
+        const musclesLastUpdate =
+            await GlobalModel.refreshMusclesLastUpdateAndSave();
+
+        return res.status(200).json({ musclesLastUpdate: musclesLastUpdate });
     } catch (error) {
         console.log(error);
-        return res.sendStatus(400);
+        return res.status(500).json({ error: "Server-side exception thrown." });
     }
 };
 
@@ -109,9 +131,9 @@ export const getAllMuscles = async (
     try {
         const muscles = getMuscles();
 
-        return res.status(200).json(muscles);
+        return res.status(200).json({ muscles: muscles });
     } catch (error) {
         console.log(error);
-        return res.sendStatus(400);
+        return res.status(500).json({ error: "Server-side exception thrown." });
     }
 };

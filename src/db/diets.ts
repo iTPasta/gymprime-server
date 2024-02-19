@@ -6,7 +6,11 @@ interface IDiet {
     meals?: mongoose.Types.ObjectId[];
 }
 
-const dietSchema = new mongoose.Schema<IDiet>({
+interface IDietMethods {}
+
+interface IDietModel extends mongoose.Model<IDiet, {}, IDietMethods> {}
+
+const dietSchema = new mongoose.Schema<IDiet, IDietModel, IDietMethods>({
     name: { type: String, required: false },
     description: { type: String, required: false },
     meals: {
@@ -15,7 +19,7 @@ const dietSchema = new mongoose.Schema<IDiet>({
     },
 });
 
-export const DietModel = mongoose.model<IDiet>("Diet", dietSchema);
+export const DietModel = mongoose.model<IDiet, IDietModel>("Diet", dietSchema);
 
 export const getDiets = () => DietModel.find();
 export const getDietById = (id: string) => DietModel.findById(id);

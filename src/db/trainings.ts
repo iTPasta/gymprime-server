@@ -50,7 +50,7 @@ export const deleteTrainingById = (id: string) =>
 export const updateTrainingById = (id: string, values: Record<string, any>) =>
     TrainingModel.findByIdAndUpdate(id, values);
 
-export const addSetToTrainingByIds = (trainingId: string, set: Object) =>
+export const addSetToTrainingByIds = (trainingId: string, set: object) =>
     TrainingModel.findByIdAndUpdate(trainingId, { $push: { sets: set } });
-export const removeSetFromTrainingByIds = (trainingId: string, set: Object) =>
+export const removeSetFromTrainingByIds = (trainingId: string, set: object) =>
     TrainingModel.findByIdAndUpdate(trainingId, { $pullAll: { sets: set } });

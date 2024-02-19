@@ -18,18 +18,18 @@ export const getMeal = async (req: express.Request, res: express.Response) => {
     try {
         const user = req.body.user;
 
-        if (!user) {
-            return res.sendStatus(500);
-        }
-
         const id = req.params.id;
 
         if (!id) {
-            return res.sendStatus(400);
+            return res
+                .status(400)
+                .json({ error: "No id parameter found in the request." });
         }
 
         if (!user.ownMeal(id)) {
-            return res.sendStatus(401);
+            return res
+                .status(401)
+                .json({ error: "User does not own the requested meal." });
         }
 
         const meal = await getMealById(id);
@@ -41,17 +41,13 @@ export const getMeal = async (req: express.Request, res: express.Response) => {
         return res.status(200).json({ meal: meal });
     } catch (error) {
         console.log(error);
-        return res.sendStatus(400);
+        return res.status(500).json({ error: "Server-side exception thrown." });
     }
 };
 
 export const makeMeal = async (req: express.Request, res: express.Response) => {
     try {
         const { user, name, description, aliments, recipes } = req.body;
-
-        if (!user) {
-            return res.sendStatus(500);
-        }
 
         const mealId = await createMeal({
             name: name ?? undefined,
@@ -73,7 +69,7 @@ export const makeMeal = async (req: express.Request, res: express.Response) => {
             .json({ mealId: mealId, mealsLastUpdate: mealsLastUpdate });
     } catch (error) {
         console.log(error);
-        return res.sendStatus(400);
+        return res.status(500).json({ error: "Server-side exception thrown." });
     }
 };
 
@@ -85,16 +81,16 @@ export const deleteMeal = async (
         const { user } = req.body;
         const { id } = req.params;
 
-        if (!user) {
-            return res.sendStatus(500);
-        }
-
         if (!id) {
-            return res.sendStatus(400);
+            return res
+                .status(400)
+                .json({ error: "No id parameter found in the request." });
         }
 
         if (!user.ownMeal(id)) {
-            return res.sendStatus(401);
+            return res.status(401).json({
+                error: "User does not own the meal corresponding to the provided id.",
+            });
         }
 
         const meal = await getMealById(id);
@@ -116,7 +112,7 @@ export const deleteMeal = async (
         return res.status(200).json({ mealsLastUpdate: mealsLastUpdate });
     } catch (error) {
         console.log(error);
-        return res.sendStatus(400);
+        return res.status(500).json({ error: "Server-side exception thrown." });
     }
 };
 
@@ -128,16 +124,16 @@ export const updateMeal = async (
         const { id } = req.params;
         const { user, name, description, aliments, recipes } = req.body;
 
-        if (!user) {
-            return res.sendStatus(500);
-        }
-
         if (!id) {
-            return res.sendStatus(400);
+            return res
+                .status(400)
+                .json({ error: "No id parameter found in the request." });
         }
 
         if (!user.ownMeal(id)) {
-            return res.sendStatus(401);
+            return res.status(401).json({
+                error: "User does not own the meal corresponding to the provided id.",
+            });
         }
 
         const values = {
@@ -150,12 +146,12 @@ export const updateMeal = async (
         await updateMealById(id, values);
 
         const mealsLastUpdate: number = user.refreshMealsLastUpdate();
-        user.save();
+        await user.save();
 
         return res.status(200).json({ mealsLastUpdate: mealsLastUpdate });
     } catch (error) {
         console.log(error);
-        return res.sendStatus(400);
+        return res.status(500).json({ error: "Server-side exception thrown." });
     }
 };
 
@@ -164,19 +160,19 @@ export const addAlimentToMeal = async (
     res: express.Response
 ) => {
     try {
-        const { id } = req.params;
+        const { mealId } = req.params;
         const { user, alimentId } = req.body;
 
-        if (!user) {
-            return res.sendStatus(500);
+        if (!mealId || !alimentId) {
+            return res.status(400).json({
+                error: "Missing mealId in request parameters, or alimentId in request body.",
+            });
         }
 
-        if (!id || !alimentId) {
-            return res.sendStatus(400);
-        }
-
-        if (!user.ownMeal(id)) {
-            return res.sendStatus(401);
+        if (!user.ownMeal(mealId)) {
+            return res.status(401).json({
+                error: "User does not own the meal corresponding to the provided mealId.",
+            });
         }
 
         const aliment = await getAlimentById(alimentId);
@@ -185,18 +181,18 @@ export const addAlimentToMeal = async (
             return res.sendStatus(400);
         }
 
-        const meal = await getMealById(id);
+        const meal = await getMealById(mealId);
 
         if (!meal) {
             return res.sendStatus(400);
         }
 
-        await addAlimentToMealByIds(id, alimentId);
+        await addAlimentToMealByIds(mealId, alimentId);
 
         return res.sendStatus(200);
     } catch (error) {
         console.log(error);
-        return res.sendStatus(400);
+        return res.status(500).json({ error: "Server-side exception thrown." });
     }
 };
 
@@ -205,33 +201,33 @@ export const removeAlimentFromMeal = async (
     res: express.Response
 ) => {
     try {
-        const { id } = req.params;
+        const { mealId } = req.params;
         const { user, alimentId } = req.body;
 
-        if (!user) {
-            return res.sendStatus(500);
+        if (!mealId || !alimentId) {
+            return res.status(400).json({
+                error: "Missing mealId in request parameters, or alimentId in request body.",
+            });
         }
 
-        if (!id || !alimentId) {
-            return res.sendStatus(400);
+        if (!user.ownMeal(mealId)) {
+            return res.status(401).json({
+                error: "User does not own the meal corresponding to the provided mealId.",
+            });
         }
 
-        if (!user.ownMeal(id)) {
-            return res.sendStatus(401);
-        }
-
-        const meal = await getMealById(id);
+        const meal = await getMealById(mealId);
 
         if (!meal) {
             return res.sendStatus(400);
         }
 
-        await removeAlimentFromMealByIds(id, alimentId);
+        await removeAlimentFromMealByIds(mealId, alimentId);
 
         return res.sendStatus(200);
     } catch (error) {
         console.log(error);
-        return res.sendStatus(400);
+        return res.status(500).json({ error: "Server-side exception thrown." });
     }
 };
 
@@ -243,16 +239,14 @@ export const addRecipeToMeal = async (
         const mealId = req.params.id;
         const { user, recipeId } = req.body;
 
-        if (!user) {
-            return res.sendStatus(500);
-        }
-
         if (!mealId || !recipeId) {
             return res.sendStatus(400);
         }
 
         if (!user.ownMeal(mealId)) {
-            return res.sendStatus(401);
+            return res.status(401).json({
+                error: "User does not own the meal corresponding to the provided mealId.",
+            });
         }
 
         const recipe = await getRecipeById(recipeId);
@@ -262,7 +256,9 @@ export const addRecipeToMeal = async (
         }
 
         if (!user.ownRecipe(recipeId)) {
-            return res.sendStatus(401);
+            return res.status(401).json({
+                error: "User does not own the recipe corresponding to the provided recipeId.",
+            });
         }
 
         const meal = await getMealById(mealId);
@@ -276,7 +272,7 @@ export const addRecipeToMeal = async (
         return res.sendStatus(200);
     } catch (error) {
         console.log(error);
-        return res.sendStatus(400);
+        return res.status(500).json({ error: "Server-side exception thrown." });
     }
 };
 
@@ -288,16 +284,14 @@ export const removeRecipeFromMeal = async (
         const mealId = req.params.id;
         const { user, recipeId } = req.body;
 
-        if (!user) {
-            return res.sendStatus(500);
-        }
-
         if (!mealId || !recipeId) {
             return res.sendStatus(400);
         }
 
         if (!user.ownMeal(mealId)) {
-            return res.sendStatus(401);
+            return res.status(401).json({
+                error: "User does not own the meal corresponding to the provided mealId.",
+            });
         }
 
         const meal = await getMealById(mealId);
@@ -311,7 +305,7 @@ export const removeRecipeFromMeal = async (
         return res.sendStatus(200);
     } catch (error) {
         console.log(error);
-        return res.sendStatus(400);
+        return res.status(500).json({ error: "Server-side exception thrown." });
     }
 };
 
@@ -322,20 +316,16 @@ export const getMyMeals = async (
     try {
         const { user } = req.body;
 
-        if (!user) {
-            return res.sendStatus(500);
-        }
-
         const mealsIds = user.meals.toObject();
-        const mealsArray = [];
+        const meals = [];
         for (const id of mealsIds) {
-            mealsArray.push(await getMealById(id));
+            meals.push(await getMealById(id));
         }
 
-        res.status(200).json(mealsArray);
+        res.status(200).json({ meals: meals });
     } catch (error) {
         console.log(error);
-        return res.sendStatus(400);
+        return res.status(500).json({ error: "Server-side exception thrown." });
     }
 };
 
@@ -346,9 +336,9 @@ export const getAllMeals = async (
     try {
         const meals = await getMeals();
 
-        return res.status(200).json(meals);
+        return res.status(200).json({ meals: meals });
     } catch (error) {
         console.log(error);
-        return res.sendStatus(400);
+        return res.status(500).json({ error: "Server-side exception thrown." });
     }
 };

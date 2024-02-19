@@ -6,6 +6,7 @@ import {
     updateAlimentById,
 } from "../db/aliments";
 import express from "express";
+import { GlobalModel } from "../db/globals";
 
 export const getAliment = async (
     req: express.Request,
@@ -15,19 +16,23 @@ export const getAliment = async (
         const id = req.params.id;
 
         if (!id) {
-            return res.sendStatus(400);
+            return res
+                .status(400)
+                .json({ error: "No id parameter found in the request." });
         }
 
         const aliment = await getAlimentById(id);
 
         if (!aliment) {
-            return res.sendStatus(404);
+            return res.status(404).json({
+                error: "Database does not contain any aliment corresponding to the provided id.",
+            });
         }
 
-        return res.status(200).json(aliment);
+        return res.status(200).json({ aliment: aliment });
     } catch (error) {
         console.log(error);
-        return res.sendStatus(400);
+        return res.status(500).json({ error: "Server-side exception thrown." });
     }
 };
 
@@ -52,7 +57,9 @@ export const makeAliment = async (
         } = req.body;
 
         if (!barCode || !name) {
-            return res.sendStatus(400);
+            return res.status(400).json({
+                error: "Missing barCode or name in the body of the request.",
+            });
         }
 
         const alimentId = await createAliment({
@@ -70,10 +77,16 @@ export const makeAliment = async (
             nutriscoreScore: nutriscoreScore ?? undefined,
         });
 
-        return res.status(200).json(alimentId);
+        const alimentsLastUpdate =
+            GlobalModel.refreshAlimentsLastUpdateAndSave();
+
+        return res.status(201).json({
+            alimentId: alimentId,
+            alimentsLastUpdate: alimentsLastUpdate,
+        });
     } catch (error) {
         console.log(error);
-        return res.sendStatus(400);
+        return res.status(500).json({ error: "Server-side exception thrown." });
     }
 };
 
@@ -85,15 +98,20 @@ export const deleteAliment = async (
         const { id } = req.params;
 
         if (!id) {
-            return res.sendStatus(400);
+            return res
+                .status(400)
+                .json({ error: "No id parameter found in the request." });
         }
 
         await deleteAlimentById(id);
 
-        return res.sendStatus(200);
+        const alimentsLastUpdate =
+            await GlobalModel.refreshAlimentsLastUpdateAndSave();
+
+        return res.status(200).json({ alimentsLastUpdate: alimentsLastUpdate });
     } catch (error) {
         console.log(error);
-        return res.sendStatus(400);
+        return res.status(500).json({ error: "Server-side exception thrown." });
     }
 };
 
@@ -119,7 +137,9 @@ export const updateAliment = async (
         } = req.body;
 
         if (!id || !barCode || !name) {
-            return res.sendStatus(400);
+            return res.status(400).json({
+                error: "Missing id in request parameters, or barCode and name in the request body.",
+            });
         }
 
         const values = {
@@ -139,10 +159,13 @@ export const updateAliment = async (
 
         await updateAlimentById(id, values);
 
-        return res.sendStatus(200);
+        const alimentsLastUpdate =
+            await GlobalModel.refreshAlimentsLastUpdateAndSave();
+
+        return res.status(200).json({ alimentsLastUpdate: alimentsLastUpdate });
     } catch (error) {
         console.log(error);
-        return res.sendStatus(400);
+        return res.status(500).json({ error: "Server-side exception thrown." });
     }
 };
 
@@ -153,9 +176,9 @@ export const getAllAliments = async (
     try {
         const aliments = getAliments();
 
-        return res.status(200).json(aliments);
+        return res.status(200).json({ aliments: aliments });
     } catch (error) {
         console.log(error);
-        return res.sendStatus(400);
+        return res.status(500).json({ error: "Server-side exception thrown." });
     }
 };

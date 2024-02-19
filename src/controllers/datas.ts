@@ -7,7 +7,7 @@ import { getTrainingById } from "../db/trainings";
 import { getExercises } from "../db/exercises";
 import { getMuscles } from "../db/muscles";
 import { getMuscleGroups } from "../db/muscle_groups";
-import { getGlobalByName } from "../db/globals";
+import { GlobalModel, getGlobalByName } from "../db/globals";
 
 export const getAllData = async (
     req: express.Request,
@@ -15,10 +15,6 @@ export const getAllData = async (
 ) => {
     try {
         const { user } = req.body;
-
-        if (!user) {
-            return res.sendStatus(500);
-        }
 
         const userLastUpdates = user.lastUpdates;
         const publicLastUpdates = await getGlobalByName("publicLastUpdates");
@@ -38,56 +34,56 @@ export const getAllData = async (
         const preferences = user.preferences;
 
         const dietsIds = user.diets.toObject();
-        const dietsArray = [];
+        const diets = [];
         for (const id of dietsIds) {
-            dietsArray.push(await getDietById(id));
+            diets.push(await getDietById(id));
         }
 
         const mealsIds = user.meals.toObject();
-        const mealsArray = [];
+        const meals = [];
         for (const id of mealsIds) {
-            mealsArray.push(await getMealById(id));
+            meals.push(await getMealById(id));
         }
 
         const recipesIds = user.recipes;
-        const recipesArray = [];
+        const recipes = [];
         for (const id of recipesIds) {
-            recipesArray.push(await getRecipeById(id));
+            recipes.push(await getRecipeById(id));
         }
 
         const programsIds = user.programs;
-        const programsArray = [];
+        const programs = [];
         for (const id of programsIds) {
-            programsArray.push(await getProgramById(id));
+            programs.push(await getProgramById(id));
         }
 
         const trainingsIds = user.trainings;
-        const trainingsArray = [];
+        const trainings = [];
         for (const id of trainingsIds) {
-            trainingsArray.push(await getTrainingById(id));
+            trainings.push(await getTrainingById(id));
         }
 
-        const exercisesArray = await getExercises();
+        const exercises = await getExercises();
 
-        const musclesArray = await getMuscles();
+        const muscles = await getMuscles();
 
-        const muscleGroupsArray = await getMuscleGroups();
+        const muscleGroups = await getMuscleGroups();
 
         return res.status(200).json({
             lastUpdates: lastUpdates,
             preferences: preferences,
-            diets: dietsArray,
-            meals: mealsArray,
-            recipes: recipesArray,
-            programs: programsArray,
-            trainings: trainingsArray,
-            exercises: exercisesArray,
-            muscles: musclesArray,
-            muscleGroups: muscleGroupsArray,
+            diets: diets,
+            meals: meals,
+            recipes: recipes,
+            programs: programs,
+            trainings: trainings,
+            exercises: exercises,
+            muscles: muscles,
+            muscleGroups: muscleGroups,
         });
     } catch (error) {
         console.log(error);
-        return res.sendStatus(400);
+        return res.status(500).json({ error: "Server-side exception thrown." });
     }
 };
 
@@ -108,10 +104,6 @@ export const getSomeData = async (
             wantMuscles,
             wantMuscleGroups,
         } = req.body;
-
-        if (!user) {
-            return res.sendStatus(500);
-        }
 
         const preferences = wantPreferences ? user.preferences : undefined;
 
@@ -176,7 +168,7 @@ export const getSomeData = async (
         });
     } catch (error) {
         console.log(error);
-        return res.sendStatus(400);
+        return res.status(500).json({ error: "Server-side exception thrown." });
     }
 };
 
@@ -187,27 +179,23 @@ export const getPublicData = async (
     try {
         const { user } = req.body;
 
-        if (!user) {
-            return res.sendStatus(500);
-        }
-
         const lastUpdates = user.lastUpdates;
 
-        const exercisesArray = await getExercises();
+        const exercises = await getExercises();
 
-        const musclesArray = await getMuscles();
+        const muscles = await getMuscles();
 
-        const muscleGroupsArray = await getMuscleGroups();
+        const muscleGroups = await getMuscleGroups();
 
         return res.status(200).json({
             lastUpdates: lastUpdates,
-            exercises: exercisesArray,
-            muscles: musclesArray,
-            muscleGroups: muscleGroupsArray,
+            exercises: exercises,
+            muscles: muscles,
+            muscleGroups: muscleGroups,
         });
     } catch (error) {
         console.log(error);
-        return res.sendStatus(400);
+        return res.status(500).json({ error: "Server-side exception thrown." });
     }
 };
 
@@ -218,57 +206,53 @@ export const getMyData = async (
     try {
         const { user } = req.body;
 
-        if (!user) {
-            return res.sendStatus(500);
-        }
-
         const lastUpdates = user.lastUpdates;
 
         const preferences = user.preferences;
 
         const dietsIds = user.diets.toObject();
-        const dietsArray = [];
+        const diets = [];
         for (const id of dietsIds) {
-            dietsArray.push(await getDietById(id));
+            diets.push(await getDietById(id));
             // TODO: Si indéfini supprimer.
         }
 
         const mealsIds = user.meals.toObject();
-        const mealsArray = [];
+        const meals = [];
         for (const id of mealsIds) {
-            mealsArray.push(await getMealById(id));
+            meals.push(await getMealById(id));
         }
 
         const recipesIds = user.recipes;
-        const recipesArray = [];
+        const recipes = [];
         for (const id of recipesIds) {
-            recipesArray.push(await getRecipeById(id));
+            recipes.push(await getRecipeById(id));
         }
 
         const programsIds = user.programs;
-        const programsArray = [];
+        const programs = [];
         for (const id of programsIds) {
-            programsArray.push(await getProgramById(id));
+            programs.push(await getProgramById(id));
         }
 
         const trainingsIds = user.trainings;
-        const trainingsArray = [];
+        const trainings = [];
         for (const id of trainingsIds) {
-            trainingsArray.push(await getTrainingById(id));
+            trainings.push(await getTrainingById(id));
         }
 
         return res.status(200).json({
             lastUpdates: lastUpdates,
             preferences: preferences,
-            diets: dietsArray,
-            meals: mealsArray,
-            recipes: recipesArray,
-            programs: programsArray,
-            trainings: trainingsArray,
+            diets: diets,
+            meals: meals,
+            recipes: recipes,
+            programs: programs,
+            trainings: trainings,
         });
     } catch (error) {
         console.log(error);
-        return res.sendStatus(400);
+        return res.status(500).json({ error: "Server-side exception thrown." });
     }
 };
 
@@ -279,12 +263,8 @@ export const getLastUpdates = async (
     try {
         const { user } = req.body;
 
-        if (!user) {
-            return res.sendStatus(500);
-        }
-
         const userLastUpdates = user.lastUpdates;
-        const publicLastUpdates = await getGlobalByName("publicLastUpdates");
+        const publicLastUpdates = await GlobalModel.getPublicLastUpdates();
 
         return res.status(200).json({
             preferencesLastUpdate: userLastUpdates.preferences,
@@ -293,12 +273,12 @@ export const getLastUpdates = async (
             recipesLastUpdate: userLastUpdates.recipes,
             programsLastUpdate: userLastUpdates.programs,
             trainingsLastUpdate: userLastUpdates.trainings,
-            exercisesLastUpdate: publicLastUpdates?.value.exercises,
-            muscleGroupsLastUpdate: publicLastUpdates?.value.muscleGroups,
-            musclesLastUpdate: publicLastUpdates?.value.muscles,
+            exercisesLastUpdate: publicLastUpdates.exercises,
+            muscleGroupsLastUpdate: publicLastUpdates.muscleGroups,
+            musclesLastUpdate: publicLastUpdates.muscles,
         });
     } catch (error) {
         console.log(error);
-        return res.sendStatus(400);
+        return res.status(500).json({ error: "Server-side exception thrown." });
     }
 };

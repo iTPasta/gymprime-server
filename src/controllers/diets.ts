@@ -1,5 +1,4 @@
 import express from "express";
-import mongoose from "mongoose";
 import {
     createDiet,
     deleteDietById,
@@ -12,42 +11,38 @@ export const getDiet = async (req: express.Request, res: express.Response) => {
     try {
         const user = req.body.user;
 
-        if (!user) {
-            return res.sendStatus(500);
-        }
-
         const id = req.params.id;
 
         if (!id) {
-            return res.sendStatus(400);
+            return res
+                .status(400)
+                .json({ error: "No id parameter found in the request." });
         }
 
-        const userDietsIds: mongoose.Types.ObjectId[] = user.diets;
-
         if (!user.ownDiet(id)) {
-            return res.sendStatus(401);
+            return res
+                .status(401)
+                .json({ error: "User does not own the requested diet." });
         }
 
         const diet = await getDietById(id);
 
         if (!diet) {
-            return res.sendStatus(404);
+            return res.status(404).json({
+                error: "Database does not contain any diet corresponding to the provided id.",
+            });
         }
 
         return res.status(200).json({ diet: diet });
     } catch (error) {
         console.log(error);
-        return res.sendStatus(400);
+        return res.status(500).json({ error: "Server-side exception thrown." });
     }
 };
 
 export const makeDiet = async (req: express.Request, res: express.Response) => {
     try {
         const { user, name, description, meals } = req.body;
-
-        if (!user) {
-            return res.sendStatus(500);
-        }
 
         const dietId = await createDiet({
             name: name ?? undefined,
@@ -56,11 +51,6 @@ export const makeDiet = async (req: express.Request, res: express.Response) => {
         });
 
         const dietsLastUpdate: number = user.addDiet(dietId);
-
-        if (!dietsLastUpdate) {
-            return res.sendStatus(500);
-        }
-
         await user.save();
 
         return res
@@ -68,7 +58,7 @@ export const makeDiet = async (req: express.Request, res: express.Response) => {
             .json({ dietId: dietId, dietsLastUpdate: dietsLastUpdate });
     } catch (error) {
         console.log(error);
-        return res.sendStatus(400);
+        return res.status(500).json({ error: "Server-side exception thrown." });
     }
 };
 
@@ -80,38 +70,35 @@ export const deleteDiet = async (
         const { id } = req.params;
         const { user } = req.body;
 
-        if (!user) {
-            return res.sendStatus(500);
-        }
-
         if (!id) {
-            return res.sendStatus(400);
+            return res
+                .status(400)
+                .json({ error: "No id parameter found in the request." });
         }
 
         if (!user.ownDiet(id)) {
-            return res.sendStatus(401);
+            return res.status(401).json({
+                error: "User does not own the diet corresponding to the provided id.",
+            });
         }
 
         const diet = await getDietById(id);
 
         if (!diet) {
-            return res.sendStatus(400);
+            return res.status(404).json({
+                error: "Database does not contain any diet corresponding to the provided id.",
+            });
         }
 
         await deleteDietById(id);
 
         const dietsLastUpdate: number = user.removeDiet(id);
-
-        if (!dietsLastUpdate) {
-            return res.sendStatus(500);
-        }
-
         await user.save();
 
         return res.status(200).json({ dietsLastUpdate: dietsLastUpdate });
     } catch (error) {
         console.log(error);
-        return res.sendStatus(400);
+        return res.status(500).json({ error: "Server-side exception thrown." });
     }
 };
 
@@ -123,16 +110,16 @@ export const updateDiet = async (
         const { id } = req.params;
         const { user, name, description, meals } = req.body;
 
-        if (!user) {
-            return res.sendStatus(500);
-        }
-
         if (!id) {
-            return res.sendStatus(400);
+            return res
+                .status(400)
+                .json({ error: "No id parameter found in the request." });
         }
 
         if (!user.ownDiet(id)) {
-            return res.sendStatus(401);
+            return res.status(401).json({
+                error: "User does not own the diet corresponding to the provided id.",
+            });
         }
 
         const values = {
@@ -144,12 +131,12 @@ export const updateDiet = async (
         await updateDietById(id, values);
 
         const dietsLastUpdate: number = user.refreshDietsLastUpdate();
-        user.save();
+        await user.save();
 
         return res.status(200).json({ dietsLastUpdate: dietsLastUpdate });
     } catch (error) {
         console.log(error);
-        return res.sendStatus(400);
+        return res.status(500).json({ error: "Server-side exception thrown." });
     }
 };
 
@@ -160,24 +147,20 @@ export const getMyDiets = async (
     try {
         const { user } = req.body;
 
-        if (!user) {
-            return res.sendStatus(500);
-        }
-
         const dietsIds = user.diets.toObject();
-        const dietsArray = [];
+        const diets = [];
         for (const id of dietsIds) {
-            dietsArray.push(await getDietById(id));
+            diets.push(await getDietById(id));
         }
 
         const dietsLastUpdate: number = user.lastUpdates.diets;
 
         return res
             .status(200)
-            .json({ diets: dietsArray, dietsLastUpdate: dietsLastUpdate });
+            .json({ diets: diets, dietsLastUpdate: dietsLastUpdate });
     } catch (error) {
         console.log(error);
-        return res.sendStatus(400);
+        return res.status(500).json({ error: "Server-side exception thrown." });
     }
 };
 
@@ -188,9 +171,9 @@ export const getAllDiets = async (
     try {
         const diets = await getDiets();
 
-        return res.status(200).json(diets);
+        return res.status(200).json({ diets: diets });
     } catch (error) {
         console.log(error);
-        return res.sendStatus(400);
+        return res.status(500).json({ error: "Server-side exception thrown." });
     }
 };

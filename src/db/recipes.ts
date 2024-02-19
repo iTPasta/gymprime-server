@@ -49,14 +49,14 @@ export const updateRecipeById = (id: string, values: Record<string, any>) =>
 
 export const addIngredientToRecipeByIds = (
     recipeId: string,
-    ingredient: Object
+    ingredient: object
 ) =>
     RecipeModel.findByIdAndUpdate(recipeId, {
         $push: { ingredients: ingredient },
     });
 export const removeIngredientFromRecipeByIds = (
     recipeId: string,
-    ingredient: Object
+    ingredient: object
 ) =>
     RecipeModel.findByIdAndUpdate(recipeId, {
         $pullAll: { ingredients: ingredient },

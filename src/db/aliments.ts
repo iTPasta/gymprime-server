@@ -23,7 +23,15 @@ interface IAliment {
     nutriscoreScore?: number;
 }
 
-const alimentSchema = new mongoose.Schema<IAliment>({
+interface IAlimentMethods {}
+
+interface IAlimentModel extends mongoose.Model<IAliment, {}, IAlimentMethods> {}
+
+const alimentSchema = new mongoose.Schema<
+    IAliment,
+    IAlimentModel,
+    IAlimentMethods
+>({
     barCode: { type: String, required: true, unique: true },
     name: { type: String, required: true },
     ciqualCode: { type: Number, required: false },
@@ -46,7 +54,10 @@ const alimentSchema = new mongoose.Schema<IAliment>({
     nutriscoreScore: { type: Number, required: false },
 });
 
-export const AlimentModel = mongoose.model<IAliment>("Aliment", alimentSchema);
+export const AlimentModel = mongoose.model<IAliment, IAlimentModel>(
+    "Aliment",
+    alimentSchema
+);
 
 export const getAliments = () => AlimentModel.find();
 export const getAlimentByBarcode = (barCode: string) =>

@@ -15,32 +15,32 @@ export const getProgram = async (
     try {
         const user = req.body.user;
 
-        if (!user) {
-            return res.sendStatus(500);
-        }
-
         const id = req.params.id;
 
         if (!id) {
-            return res.sendStatus(400);
+            return res
+                .status(400)
+                .json({ error: "No id parameter found in the request." });
         }
 
-        const userProgramsIds: mongoose.Types.ObjectId[] = user.programs;
-
         if (!user.ownProgram(id)) {
-            return res.sendStatus(401);
+            return res
+                .status(401)
+                .json({ error: "User does not own the requested program." });
         }
 
         const program = await getProgramById(id);
 
         if (!program) {
-            return res.sendStatus(400);
+            return res.status(400).json({
+                error: "Database does not contain any program corresponding to the provided id.",
+            });
         }
 
         return res.status(200).json({ program: program });
     } catch (error) {
         console.log(error);
-        return res.sendStatus(400);
+        return res.status(500).json({ error: "Server-side exception thrown." });
     }
 };
 
@@ -52,10 +52,6 @@ export const makeProgram = async (
         const { user, name, description, exercises, trainings, goal } =
             req.body;
 
-        if (!user) {
-            return res.sendStatus(500);
-        }
-
         const programId = await createProgram({
             name: name ?? undefined,
             description: description ?? undefined,
@@ -65,11 +61,6 @@ export const makeProgram = async (
         });
 
         const programsLastUpdate: number = user.addProgram(programId);
-
-        if (!programsLastUpdate) {
-            return res.sendStatus(500);
-        }
-
         await user.save();
 
         return res.status(200).json({
@@ -78,7 +69,7 @@ export const makeProgram = async (
         });
     } catch (error) {
         console.log(error);
-        return res.sendStatus(400);
+        return res.status(500).json({ error: "Server-side exception thrown." });
     }
 };
 
@@ -90,38 +81,35 @@ export const deleteProgram = async (
         const { user } = req.body;
         const { id } = req.params;
 
-        if (!user) {
-            return res.sendStatus(500);
-        }
-
         if (!id) {
-            return res.sendStatus(400);
+            return res
+                .status(400)
+                .json({ error: "No id parameter found in the request." });
         }
 
         if (!user.ownProgram(id)) {
-            return res.sendStatus(401);
+            return res.status(401).json({
+                error: "User does not own the program corresponding to the provided id.",
+            });
         }
 
         const program = await getProgramById(id);
 
         if (!program) {
-            return res.sendStatus(400);
+            return res.status(400).json({
+                error: "Database does not contain any program corresponding to the provided id.",
+            });
         }
 
         await deleteProgramById(id);
 
         const programsLastUpdate: number = user.deleteDiet(id);
-
-        if (!programsLastUpdate) {
-            return res.sendStatus(500);
-        }
-
-        user.save();
+        await user.save();
 
         return res.status(200).json({ programsLastUpdate: programsLastUpdate });
     } catch (error) {
         console.log(error);
-        return res.sendStatus(400);
+        return res.status(500).json({ error: "Server-side exception thrown." });
     }
 };
 
@@ -134,16 +122,16 @@ export const updateProgram = async (
         const { user, name, description, exercises, trainings, goal } =
             req.body;
 
-        if (!user) {
-            return res.sendStatus(500);
-        }
-
         if (!id) {
-            return res.sendStatus(400);
+            return res
+                .status(400)
+                .json({ error: "No id parameter found in the request." });
         }
 
         if (!user.ownProgram(id)) {
-            return res.sendStatus(401);
+            return res.status(401).json({
+                error: "User does not own the program corresponding to the provided id.",
+            });
         }
 
         const values = {
@@ -157,12 +145,12 @@ export const updateProgram = async (
         await updateProgramById(id, values);
 
         const programsLastUpdate: number = user.refreshProgramsLastUpdate();
-        user.save();
+        await user.save();
 
         return res.status(200).json({ programsLastUpdate: programsLastUpdate });
     } catch (error) {
         console.log(error);
-        return res.sendStatus(400);
+        return res.status(500).json({ error: "Server-side exception thrown." });
     }
 };
 
@@ -173,22 +161,16 @@ export const getMyPrograms = async (
     try {
         const { user } = req.body;
 
-        if (!user) {
-            return res.status(500).json({
-                error: "User is null or undefined in the request body.",
-            });
-        }
-
         const programsIds = user.programs;
-        const programsArray = [];
+        const programs = [];
         for (const id of programsIds) {
-            programsArray.push(await getProgramById(id));
+            programs.push(await getProgramById(id));
         }
 
-        res.status(200).json({ programs: programsArray });
+        res.status(200).json({ programs: programs });
     } catch (error) {
         console.log(error);
-        return res.sendStatus(400);
+        return res.status(500).json({ error: "Server-side exception thrown." });
     }
 };
 
@@ -202,6 +184,6 @@ export const getAllPrograms = async (
         return res.status(200).json({ programs: programs });
     } catch (error) {
         console.log(error);
-        return res.sendStatus(400);
+        return res.status(500).json({ error: "Server-side exception thrown." });
     }
 };
