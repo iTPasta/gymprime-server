@@ -7,14 +7,12 @@ interface IPublicLastUpdates {
     muscles: number;
 }
 
-interface IGlobal {
+export interface IGlobal extends mongoose.Document {
     name: string;
     value: any;
 }
 
-interface IGlobalMethods {}
-
-interface IGlobalModel extends mongoose.Model<IGlobal, {}, IGlobalMethods> {
+interface IGlobalModel extends mongoose.Model<IGlobal> {
     getPublicLastUpdates(): Promise<IPublicLastUpdates>;
     refreshAlimentsLastUpdateAndSave(): Promise<number>;
     refreshExercisesLastUpdateAndSave(): Promise<number>;
@@ -22,18 +20,16 @@ interface IGlobalModel extends mongoose.Model<IGlobal, {}, IGlobalMethods> {
     refreshMusclesLastUpdateAndSave(): Promise<number>;
 }
 
-const globalSchema = new mongoose.Schema<IGlobal, IGlobalModel, IGlobalMethods>(
-    {
-        name: {
-            type: String,
-            required: true,
-            unique: true,
-        },
-        value: {
-            type: mongoose.Schema.Types.Mixed,
-        },
-    }
-);
+const globalSchema = new mongoose.Schema<IGlobal, IGlobalModel>({
+    name: {
+        type: String,
+        required: true,
+        unique: true,
+    },
+    value: {
+        type: mongoose.Schema.Types.Mixed,
+    },
+});
 
 globalSchema.statics.getPublicLastUpdates = async function () {
     return this.findOne({ name: "publicLastUpdates" }).then(
@@ -79,12 +75,24 @@ export const GlobalModel = mongoose.model<IGlobal, IGlobalModel>(
 );
 
 export const getGlobals = () => GlobalModel.find();
+
+export const checkGlobalExistenceById = (
+    id: string | mongoose.Types.ObjectId
+) => GlobalModel.exists({ _id: id });
+
 export const getGlobalByName = (name: string) =>
     GlobalModel.findOne({ name: name });
-export const getGlobalById = (id: string) => GlobalModel.findById(id);
+
+export const getGlobalById = (id: string | mongoose.Types.ObjectId) =>
+    GlobalModel.findById(id);
+
 export const createGlobal = (values: Record<string, any>) =>
     new GlobalModel(values).save().then((global) => global._id);
-export const deleteGlobalById = (id: string) =>
+
+export const deleteGlobalById = (id: string | mongoose.Types.ObjectId) =>
     GlobalModel.findByIdAndDelete(id);
-export const updateGlobalById = (id: string, values: Record<string, any>) =>
-    GlobalModel.findByIdAndUpdate(id, values);
+
+export const updateGlobalById = (
+    id: string | mongoose.Types.ObjectId,
+    values: Record<string, any>
+) => GlobalModel.findByIdAndUpdate(id, values);

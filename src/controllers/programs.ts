@@ -1,21 +1,23 @@
 import express from "express";
 import mongoose from "mongoose";
 import {
+    IProgram,
     createProgram,
     deleteProgramById,
     getProgramById,
     getPrograms,
     updateProgramById,
 } from "../db/programs";
+import { IUser } from "../db/users";
 
 export const getProgram = async (
     req: express.Request,
     res: express.Response
 ) => {
     try {
-        const user = req.body.user;
+        const { user } = req.body as { user: IUser };
 
-        const id = req.params.id;
+        const { id } = req.params as { id: string };
 
         if (!id) {
             return res
@@ -50,7 +52,14 @@ export const makeProgram = async (
 ) => {
     try {
         const { user, name, description, exercises, trainings, goal } =
-            req.body;
+            req.body as {
+                user: IUser;
+                name: IProgram["name"];
+                description: IProgram["description"];
+                exercises: IProgram["exercises"];
+                trainings: IProgram["trainings"];
+                goal: IProgram["goal"];
+            };
 
         const programId = await createProgram({
             name: name ?? undefined,
@@ -78,8 +87,8 @@ export const deleteProgram = async (
     res: express.Response
 ) => {
     try {
-        const { user } = req.body;
-        const { id } = req.params;
+        const { user } = req.body as { user: IUser };
+        const { id } = req.params as { id: string };
 
         if (!id) {
             return res
@@ -103,7 +112,7 @@ export const deleteProgram = async (
 
         await deleteProgramById(id);
 
-        const programsLastUpdate: number = user.deleteDiet(id);
+        const programsLastUpdate: number = user.removeProgram(id);
         await user.save();
 
         return res.status(200).json({ programsLastUpdate: programsLastUpdate });
@@ -118,9 +127,16 @@ export const updateProgram = async (
     res: express.Response
 ) => {
     try {
-        const { id } = req.params;
+        const { id } = req.params as { id: string };
         const { user, name, description, exercises, trainings, goal } =
-            req.body;
+            req.body as {
+                user: IUser;
+                name: IProgram["name"];
+                description: IProgram["description"];
+                exercises: IProgram["exercises"];
+                trainings: IProgram["trainings"];
+                goal: IProgram["goal"];
+            };
 
         if (!id) {
             return res
@@ -159,7 +175,7 @@ export const getMyPrograms = async (
     res: express.Response
 ) => {
     try {
-        const { user } = req.body;
+        const { user } = req.body as { user: IUser };
 
         const programsIds = user.programs;
         const programs = [];

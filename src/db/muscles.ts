@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-interface IMuscle {
+export interface IMuscle extends mongoose.Document {
     names?: Record<string, string>;
     descriptions?: Record<string, string>;
     exercises?: mongoose.Types.ObjectId[];
@@ -8,7 +8,9 @@ interface IMuscle {
     image?: string;
 }
 
-const muscleSchema = new mongoose.Schema<IMuscle>({
+interface IMuscleModel extends mongoose.Model<IMuscle> {}
+
+const muscleSchema = new mongoose.Schema<IMuscle, IMuscleModel>({
     names: {
         type: Map,
         of: String,
@@ -23,7 +25,11 @@ const muscleSchema = new mongoose.Schema<IMuscle>({
     },
     exercises: {
         type: [
-            { type: mongoose.Types.ObjectId, ref: "Exercise", required: true },
+            {
+                type: mongoose.Types.ObjectId,
+                ref: "Exercise",
+                required: true,
+            },
         ],
         default: () => [],
         required: false,
@@ -39,22 +45,37 @@ const muscleSchema = new mongoose.Schema<IMuscle>({
     },
 });
 
-export const MuscleModel = mongoose.model<IMuscle>("Muscle", muscleSchema);
+export const MuscleModel = mongoose.model<IMuscle, IMuscleModel>(
+    "Muscle",
+    muscleSchema
+);
 
 export const getMuscles = () => MuscleModel.find();
+
+export const checkMuscleExistenceById = (
+    id: string | mongoose.Types.ObjectId
+) => MuscleModel.exists({ _id: id });
+
+export const getMuscleById = (id: string | mongoose.Types.ObjectId) =>
+    MuscleModel.findById(id);
+
 export const getMuscleByName = (name: string) =>
     MuscleModel.findOne({ name: name });
-export const getMuscleById = (id: string) => MuscleModel.findById(id);
+
 export const createMuscle = (values: Record<string, any>) =>
     new MuscleModel(values).save().then((muscle) => muscle._id);
-export const deleteMuscleById = (id: string) =>
+
+export const deleteMuscleById = (id: string | mongoose.Types.ObjectId) =>
     MuscleModel.findByIdAndDelete(id);
-export const updateMuscleById = (id: string, values: Record<string, any>) =>
-    MuscleModel.findByIdAndUpdate(id, values);
+
+export const updateMuscleById = (
+    id: string | mongoose.Types.ObjectId,
+    values: Record<string, any>
+) => MuscleModel.findByIdAndUpdate(id, values);
 
 export const addExerciseToMuscleByIds = (
-    muscleId: string,
-    exerciseId: string
+    muscleId: string | mongoose.Types.ObjectId,
+    exerciseId: string | mongoose.Types.ObjectId
 ) => {
     MuscleModel.findByIdAndUpdate(muscleId, {
         $push: { exercises: exerciseId },
@@ -62,8 +83,8 @@ export const addExerciseToMuscleByIds = (
 };
 
 export const removeExerciseFromMuscleByIds = (
-    muscleId: string,
-    exerciseId: string
+    muscleId: string | mongoose.Types.ObjectId,
+    exerciseId: string | mongoose.Types.ObjectId
 ) => {
     MuscleModel.findByIdAndUpdate(muscleId, {
         $pullAll: { exercises: exerciseId },

@@ -1,20 +1,21 @@
 import express from "express";
-import mongoose from "mongoose";
 import {
+    IRecipe,
     createRecipe,
     deleteRecipeById,
     getRecipeById,
     getRecipes,
     updateRecipeById,
 } from "../db/recipes";
+import { IUser } from "../db/users";
 
 export const getRecipe = async (
     req: express.Request,
     res: express.Response
 ) => {
     try {
-        const { user } = req.body;
-        const { id } = req.params;
+        const { user } = req.body as { user: IUser };
+        const { id } = req.params as { id: string };
 
         if (!id) {
             return res
@@ -48,7 +49,12 @@ export const makeRecipe = async (
     res: express.Response
 ) => {
     try {
-        const { user, name, description, ingredients } = req.body;
+        const { user, name, description, ingredients } = req.body as {
+            user: IUser;
+            name: IRecipe["name"];
+            description: IRecipe["description"];
+            ingredients: IRecipe["ingredients"];
+        };
 
         const recipeId = await createRecipe({
             name: name ?? undefined,
@@ -73,8 +79,8 @@ export const deleteRecipe = async (
     res: express.Response
 ) => {
     try {
-        const { user } = req.body;
-        const { id } = req.params;
+        const { user } = req.body as { user: IUser };
+        const { id } = req.params as { id: string };
 
         if (!id) {
             return res
@@ -113,8 +119,13 @@ export const updateRecipe = async (
     res: express.Response
 ) => {
     try {
-        const { id } = req.params;
-        const { user, name, description, ingredients } = req.body;
+        const { id } = req.params as { id: string };
+        const { user, name, description, ingredients } = req.body as {
+            user: IUser;
+            name: IRecipe["name"];
+            description: IRecipe["description"];
+            ingredients: IRecipe["ingredients"];
+        };
 
         if (!id) {
             return res
@@ -139,7 +150,7 @@ export const updateRecipe = async (
         const recipesLastUpdate: number = user.refreshRecipesLastUpdate();
         await user.save();
 
-        return res.send(200).json({ recipesLastUpdate: recipesLastUpdate });
+        return res.status(200).json({ recipesLastUpdate: recipesLastUpdate });
     } catch (error) {
         console.log(error);
         return res.status(500).json({ error: "Server-side exception thrown." });
@@ -151,7 +162,7 @@ export const getMyRecipes = async (
     res: express.Response
 ) => {
     try {
-        const { user } = req.body;
+        const { user } = req.body as { user: IUser };
 
         const recipesIds = user.recipes;
         const recipes = [];

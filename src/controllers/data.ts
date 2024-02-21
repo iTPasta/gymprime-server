@@ -8,13 +8,14 @@ import { getExercises } from "../db/exercises";
 import { getMuscles } from "../db/muscles";
 import { getMuscleGroups } from "../db/muscle_groups";
 import { GlobalModel, getGlobalByName } from "../db/globals";
+import { IUser } from "../db/users";
 
 export const getAllData = async (
     req: express.Request,
     res: express.Response
 ) => {
     try {
-        const { user } = req.body;
+        const { user } = req.body as { user: IUser };
 
         const userLastUpdates = user.lastUpdates;
         const publicLastUpdates = await getGlobalByName("publicLastUpdates");
@@ -33,13 +34,13 @@ export const getAllData = async (
 
         const preferences = user.preferences;
 
-        const dietsIds = user.diets.toObject();
+        const dietsIds = user.diets;
         const diets = [];
         for (const id of dietsIds) {
             diets.push(await getDietById(id));
         }
 
-        const mealsIds = user.meals.toObject();
+        const mealsIds = user.meals;
         const meals = [];
         for (const id of mealsIds) {
             meals.push(await getMealById(id));
@@ -103,13 +104,24 @@ export const getSomeData = async (
             wantExercises,
             wantMuscles,
             wantMuscleGroups,
-        } = req.body;
+        } = req.body as {
+            user: IUser;
+            wantPreferences: boolean;
+            wantDiets: boolean;
+            wantMeals: boolean;
+            wantRecipes: boolean;
+            wantPrograms: boolean;
+            wantTrainings: boolean;
+            wantExercises: boolean;
+            wantMuscles: boolean;
+            wantMuscleGroups: boolean;
+        };
 
         const preferences = wantPreferences ? user.preferences : undefined;
 
         const diets = [];
         if (wantDiets) {
-            const dietsIds = user.diets.toObject();
+            const dietsIds = user.diets;
             for (const id of dietsIds) {
                 diets.push(await getDietById(id));
             }
@@ -117,7 +129,7 @@ export const getSomeData = async (
 
         const meals = [];
         if (wantMeals) {
-            const mealsIds = user.meals.toObject();
+            const mealsIds = user.meals;
             for (const id of mealsIds) {
                 meals.push(await getMealById(id));
             }
@@ -177,9 +189,7 @@ export const getPublicData = async (
     res: express.Response
 ) => {
     try {
-        const { user } = req.body;
-
-        const lastUpdates = user.lastUpdates;
+        const publicLastUpdates = await GlobalModel.getPublicLastUpdates();
 
         const exercises = await getExercises();
 
@@ -188,7 +198,7 @@ export const getPublicData = async (
         const muscleGroups = await getMuscleGroups();
 
         return res.status(200).json({
-            lastUpdates: lastUpdates,
+            publicLastUpdates: publicLastUpdates,
             exercises: exercises,
             muscles: muscles,
             muscleGroups: muscleGroups,
@@ -204,20 +214,19 @@ export const getMyData = async (
     res: express.Response
 ) => {
     try {
-        const { user } = req.body;
+        const { user } = req.body as { user: IUser };
 
         const lastUpdates = user.lastUpdates;
 
         const preferences = user.preferences;
 
-        const dietsIds = user.diets.toObject();
+        const dietsIds = user.diets;
         const diets = [];
         for (const id of dietsIds) {
             diets.push(await getDietById(id));
-            // TODO: Si indéfini supprimer.
         }
 
-        const mealsIds = user.meals.toObject();
+        const mealsIds = user.meals;
         const meals = [];
         for (const id of mealsIds) {
             meals.push(await getMealById(id));
@@ -261,7 +270,7 @@ export const getLastUpdates = async (
     res: express.Response
 ) => {
     try {
-        const { user } = req.body;
+        const { user } = req.body as { user: IUser };
 
         const userLastUpdates = user.lastUpdates;
         const publicLastUpdates = await GlobalModel.getPublicLastUpdates();
@@ -273,6 +282,47 @@ export const getLastUpdates = async (
             recipesLastUpdate: userLastUpdates.recipes,
             programsLastUpdate: userLastUpdates.programs,
             trainingsLastUpdate: userLastUpdates.trainings,
+            exercisesLastUpdate: publicLastUpdates.exercises,
+            muscleGroupsLastUpdate: publicLastUpdates.muscleGroups,
+            musclesLastUpdate: publicLastUpdates.muscles,
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ error: "Server-side exception thrown." });
+    }
+};
+
+export const getPrivateLastUpdates = async (
+    req: express.Request,
+    res: express.Response
+) => {
+    try {
+        const { user } = req.body as { user: IUser };
+
+        const userLastUpdates = user.lastUpdates;
+
+        return res.status(200).json({
+            preferencesLastUpdate: userLastUpdates.preferences,
+            dietsLastUpdate: userLastUpdates.diets,
+            mealsLastUpdate: userLastUpdates.meals,
+            recipesLastUpdate: userLastUpdates.recipes,
+            programsLastUpdate: userLastUpdates.programs,
+            trainingsLastUpdate: userLastUpdates.trainings,
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ error: "Server-side exception thrown." });
+    }
+};
+
+export const getPublicLastUpdates = async (
+    req: express.Request,
+    res: express.Response
+) => {
+    try {
+        const publicLastUpdates = await GlobalModel.getPublicLastUpdates();
+
+        return res.status(200).json({
             exercisesLastUpdate: publicLastUpdates.exercises,
             muscleGroupsLastUpdate: publicLastUpdates.muscleGroups,
             musclesLastUpdate: publicLastUpdates.muscles,

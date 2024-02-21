@@ -1,15 +1,17 @@
 import express from "express";
 import {
+    IDiet,
     createDiet,
     deleteDietById,
     getDietById,
     getDiets,
     updateDietById,
 } from "../db/diets";
+import { IUser } from "../db/users";
 
 export const getDiet = async (req: express.Request, res: express.Response) => {
     try {
-        const user = req.body.user;
+        const { user } = req.body as { user: IUser };
 
         const id = req.params.id;
 
@@ -42,7 +44,12 @@ export const getDiet = async (req: express.Request, res: express.Response) => {
 
 export const makeDiet = async (req: express.Request, res: express.Response) => {
     try {
-        const { user, name, description, meals } = req.body;
+        const { user, name, description, meals } = req.body as {
+            user: IUser;
+            name: IDiet["name"];
+            description: IDiet["description"];
+            meals: IDiet["meals"];
+        };
 
         const dietId = await createDiet({
             name: name ?? undefined,
@@ -67,8 +74,8 @@ export const deleteDiet = async (
     res: express.Response
 ) => {
     try {
-        const { id } = req.params;
-        const { user } = req.body;
+        const { id } = req.params as { id: string };
+        const { user } = req.body as { user: IUser };
 
         if (!id) {
             return res
@@ -107,8 +114,13 @@ export const updateDiet = async (
     res: express.Response
 ) => {
     try {
-        const { id } = req.params;
-        const { user, name, description, meals } = req.body;
+        const { id } = req.params as { id: string };
+        const { user, name, description, meals } = req.body as {
+            user: IUser;
+            name: IDiet["name"];
+            description: IDiet["description"];
+            meals: IDiet["meals"];
+        };
 
         if (!id) {
             return res
@@ -145,9 +157,9 @@ export const getMyDiets = async (
     res: express.Response
 ) => {
     try {
-        const { user } = req.body;
+        const { user } = req.body as { user: IUser };
 
-        const dietsIds = user.diets.toObject();
+        const dietsIds = user.diets;
         const diets = [];
         for (const id of dietsIds) {
             diets.push(await getDietById(id));

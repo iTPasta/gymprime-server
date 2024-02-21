@@ -9,6 +9,8 @@ import cors from "cors";
 import mongoose from "mongoose";
 import router from "./router/index";
 
+// TODO: optimisation avec entre checkExistence et get/update/delete/create
+
 const app = express();
 
 app.use(

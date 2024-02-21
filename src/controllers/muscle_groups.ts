@@ -1,5 +1,6 @@
 import express from "express";
 import {
+    IMuscleGroup,
     createMuscleGroup,
     deleteMuscleGroupById,
     getMuscleGroupById,
@@ -13,7 +14,7 @@ export const getMuscleGroup = async (
     res: express.Response
 ) => {
     try {
-        const id = req.params.id;
+        const { id } = req.params as { id: string };
 
         if (!id) {
             return res
@@ -41,7 +42,12 @@ export const makeMuscleGroup = async (
     res: express.Response
 ) => {
     try {
-        const { names, descriptions, muscles, image } = req.body;
+        const { names, descriptions, muscles, image } = req.body as {
+            names: IMuscleGroup["names"];
+            descriptions: IMuscleGroup["descriptions"];
+            muscles: IMuscleGroup["muscles"];
+            image: IMuscleGroup["image"];
+        };
 
         const muscleGroupId = await createMuscleGroup({
             names: names ?? undefined,
@@ -68,7 +74,7 @@ export const deleteMuscleGroup = async (
     res: express.Response
 ) => {
     try {
-        const { id } = req.params;
+        const { id } = req.params as { id: string };
 
         if (!id) {
             return res
@@ -95,8 +101,13 @@ export const updateMuscleGroup = async (
     res: express.Response
 ) => {
     try {
-        const { id } = req.params;
-        const { names, descriptions, muscles, image } = req.body;
+        const { id } = req.params as { id: string };
+        const { names, descriptions, muscles, image } = req.body as {
+            names: IMuscleGroup["names"];
+            descriptions: IMuscleGroup["descriptions"];
+            muscles: IMuscleGroup["muscles"];
+            image: IMuscleGroup["image"];
+        };
 
         if (!id) {
             return res

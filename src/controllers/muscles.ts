@@ -1,5 +1,6 @@
 import express from "express";
 import {
+    IMuscle,
     createMuscle,
     deleteMuscleById,
     getMuscleById,
@@ -13,7 +14,7 @@ export const getMuscle = async (
     res: express.Response
 ) => {
     try {
-        const id = req.params.id;
+        const { id } = req.params as { id: string };
 
         if (!id) {
             return res
@@ -24,11 +25,9 @@ export const getMuscle = async (
         const muscle = await getMuscleById(id);
 
         if (!muscle) {
-            return res
-                .status(404)
-                .json({
-                    error: "Database does not contain any muscle corresponding to the provided id.",
-                });
+            return res.status(404).json({
+                error: "Database does not contain any muscle corresponding to the provided id.",
+            });
         }
 
         return res.status(200).json({ muscle: muscle });
@@ -43,7 +42,14 @@ export const makeMuscle = async (
     res: express.Response
 ) => {
     try {
-        const { names, descriptions, exercises, muscleGroup, image } = req.body;
+        const { names, descriptions, exercises, muscleGroup, image } =
+            req.body as {
+                names: IMuscle["names"];
+                descriptions: IMuscle["descriptions"];
+                exercises: IMuscle["exercises"];
+                muscleGroup: IMuscle["muscleGroup"];
+                image: IMuscle["image"];
+            };
 
         const muscleId = await createMuscle({
             names: names ?? undefined,
@@ -70,7 +76,7 @@ export const deleteMuscle = async (
     res: express.Response
 ) => {
     try {
-        const { id } = req.params;
+        const { id } = req.params as { id: string };
 
         if (!id) {
             return res
@@ -95,8 +101,15 @@ export const updateMuscle = async (
     res: express.Response
 ) => {
     try {
-        const { id } = req.params;
-        const { names, descriptions, exercises, muscleGroup, image } = req.body;
+        const { id } = req.params as { id: string };
+        const { names, descriptions, exercises, muscleGroup, image } =
+            req.body as {
+                names: IMuscle["names"];
+                descriptions: IMuscle["descriptions"];
+                exercises: IMuscle["exercises"];
+                muscleGroup: IMuscle["muscleGroup"];
+                image: IMuscle["image"];
+            };
 
         if (!id) {
             return res

@@ -1,21 +1,23 @@
 import express from "express";
 import mongoose from "mongoose";
 import {
+    ITraining,
     createTraining,
     deleteTrainingById,
     getTrainingById,
     getTrainings,
     updateTrainingById,
 } from "../db/trainings";
+import { IUser } from "../db/users";
 
 export const getTraining = async (
     req: express.Request,
     res: express.Response
 ) => {
     try {
-        const { user } = req.body;
+        const { user } = req.body as { user: IUser };
 
-        const { id } = req.params;
+        const { id } = req.params as { id: string };
 
         if (!id) {
             return res
@@ -49,7 +51,13 @@ export const makeTraining = async (
     res: express.Response
 ) => {
     try {
-        const { user, name, date, notes, sets } = req.body;
+        const { user, name, date, notes, sets } = req.body as {
+            user: IUser;
+            name: ITraining["name"];
+            date: ITraining["date"];
+            notes: ITraining["notes"];
+            sets: ITraining["sets"];
+        };
 
         if (!date) {
             return res
@@ -82,8 +90,8 @@ export const deleteTraining = async (
     res: express.Response
 ) => {
     try {
-        const { user } = req.body;
-        const { id } = req.params;
+        const { user } = req.body as { user: IUser };
+        const { id } = req.params as { id: string };
 
         if (!id) {
             return res
@@ -124,8 +132,14 @@ export const updateTraining = async (
     res: express.Response
 ) => {
     try {
-        const { id } = req.params;
-        const { user, name, date, notes, sets } = req.body;
+        const { id } = req.params as { id: string };
+        const { user, name, date, notes, sets } = req.body as {
+            user: IUser;
+            name: ITraining["name"];
+            date: ITraining["date"];
+            notes: ITraining["notes"];
+            sets: ITraining["sets"];
+        };
 
         if (!id || !date) {
             return res.status(400).json({
@@ -165,7 +179,7 @@ export const getMyTrainings = async (
     res: express.Response
 ) => {
     try {
-        const { user } = req.body;
+        const { user } = req.body as { user: IUser };
 
         const trainingsIds = user.trainings;
         const trainings = [];

@@ -15,7 +15,11 @@ import {
 
 export const login = async (req: express.Request, res: express.Response) => {
     try {
-        const { username, email, password } = req.body;
+        const { username, email, password } = req.body as {
+            username: string;
+            email: string;
+            password: string;
+        };
 
         if ((!username && !email) || !password) {
             return res.status(400).json({
@@ -35,6 +39,10 @@ export const login = async (req: express.Request, res: express.Response) => {
             return res
                 .status(400)
                 .json({ error: "User not found with this email." });
+        }
+
+        if (!user.authentication) {
+            throw Error("Authentication field is undefined.");
         }
 
         const expectedHash = authentication(user.authentication.salt, password);
@@ -62,7 +70,11 @@ export const login = async (req: express.Request, res: express.Response) => {
 
 export const register = async (req: express.Request, res: express.Response) => {
     try {
-        const { username, email, password } = req.body;
+        const { username, email, password } = req.body as {
+            username: string;
+            email: string;
+            password: string;
+        };
 
         if (!username || !email || !password) {
             return res.status(400).json({
@@ -98,6 +110,10 @@ export const register = async (req: express.Request, res: express.Response) => {
                 .json({ error: "The user wasn't registered correctly." });
         }
 
+        if (!user.authentication) {
+            throw Error("Authentication field is undefined.");
+        }
+
         const tokenSalt = random();
         user.authentication.sessionToken = authentication(
             tokenSalt,
@@ -120,7 +136,7 @@ export const askValidation = async (
     res: express.Response
 ) => {
     try {
-        const { email } = req.body;
+        const { email } = req.body as { email: string };
 
         if (!email) {
             return res.status(400).json({ error: "No email specified." });
@@ -160,7 +176,7 @@ export const askValidation = async (
 
 export const validate = async (req: express.Request, res: express.Response) => {
     try {
-        const { secret } = req.params;
+        const { secret } = req.params as { secret: string };
 
         if (!secret) {
             return res.status(400).json({ error: "No secret specified." });

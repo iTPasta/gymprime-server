@@ -1,6 +1,7 @@
 import express from "express";
 
 import {
+    IExercise,
     createExercise,
     deleteExerciseById,
     getExerciseById,
@@ -14,7 +15,7 @@ export const getExercise = async (
     res: express.Response
 ) => {
     try {
-        const id = req.params.id;
+        const { id } = req.params as { id: string };
 
         if (!id) {
             return res
@@ -37,12 +38,21 @@ export const getExercise = async (
     }
 };
 
+interface ITest {}
+
 export const makeExercise = async (
     req: express.Request,
     res: express.Response
 ) => {
     try {
-        const { names, descriptions, muscles, muscleGroup, image } = req.body;
+        const { names, descriptions, muscles, muscleGroup, image } =
+            req.body as {
+                names: IExercise["names"];
+                descriptions: IExercise["descriptions"];
+                muscles: IExercise["muscles"];
+                muscleGroup: IExercise["muscleGroup"];
+                image: IExercise["image"];
+            };
 
         const exerciseId = await createExercise({
             names: names ?? undefined,
@@ -70,7 +80,7 @@ export const deleteExercise = async (
     res: express.Response
 ) => {
     try {
-        const { id } = req.params;
+        const { id } = req.params as { id: string };
 
         if (!id) {
             return res
@@ -97,8 +107,15 @@ export const updateExercise = async (
     res: express.Response
 ) => {
     try {
-        const { id } = req.params;
-        const { names, descriptions, muscles, muscleGroup, image } = req.body;
+        const { id } = req.params as { id: string };
+        const { names, descriptions, muscles, muscleGroup, image } =
+            req.body as {
+                names: IExercise["names"];
+                descriptions: IExercise["descriptions"];
+                muscles: IExercise["muscles"];
+                muscleGroup: IExercise["muscleGroup"];
+                image: IExercise["image"];
+            };
 
         if (!id) {
             return res

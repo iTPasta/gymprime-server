@@ -11,7 +11,7 @@ import preferences from "./preferences";
 import programs from "./programs";
 import recipes from "./recipes";
 import trainings from "./trainings";
-import datas from "./datas";
+import datas from "./data";
 import users from "./users";
 
 const router = express.Router();

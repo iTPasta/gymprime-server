@@ -1,23 +1,17 @@
 import mongoose from "mongoose";
+import { Language } from "../helpers/enums";
 
-interface IExercise {
-    names?: Record<string, string>;
-    descriptions?: Record<string, string>;
+export interface IExercise extends mongoose.Document {
+    names?: Record<Language, string>;
+    descriptions?: Record<Language, string>;
     muscles?: mongoose.Types.ObjectId[];
     muscleGroup?: mongoose.Types.ObjectId;
     image?: string;
 }
 
-interface IExerciseMethods {}
+interface IExerciseModel extends mongoose.Model<IExercise> {}
 
-interface IExerciseModel
-    extends mongoose.Model<IExercise, {}, IExerciseMethods> {}
-
-const exerciseSchema = new mongoose.Schema<
-    IExercise,
-    IExerciseModel,
-    IExerciseMethods
->({
+const exerciseSchema = new mongoose.Schema<IExercise, IExerciseModel>({
     names: {
         type: Map,
         of: String,
@@ -51,26 +45,38 @@ export const ExerciseModel = mongoose.model<IExercise, IExerciseModel>(
 );
 
 export const getExercises = () => ExerciseModel.find();
+
+export const checkExerciseExistenceById = (
+    id: string | mongoose.Types.ObjectId
+) => ExerciseModel.exists({ _id: id });
+
 export const getExerciseByName = (name: string) =>
     ExerciseModel.findOne({ name: name });
-export const getExerciseById = (id: string) => ExerciseModel.findById(id);
+
+export const getExerciseById = (id: string | mongoose.Types.ObjectId) =>
+    ExerciseModel.findById(id);
+
 export const createExercise = (values: Record<string, any>) =>
     new ExerciseModel(values).save().then((exercise) => exercise._id);
-export const deleteExerciseById = (id: string) =>
+
+export const deleteExerciseById = (id: string | mongoose.Types.ObjectId) =>
     ExerciseModel.findByIdAndDelete(id);
-export const updateExerciseById = (id: string, values: Record<string, any>) =>
-    ExerciseModel.findByIdAndUpdate(id, values);
+
+export const updateExerciseById = (
+    id: string | mongoose.Types.ObjectId,
+    values: Record<string, any>
+) => ExerciseModel.findByIdAndUpdate(id, values);
 
 export const addMuscleGroupToExerciseByIds = (
-    exerciseId: string,
-    muscleGroupId: string
+    exerciseId: string | mongoose.Types.ObjectId,
+    muscleGroupId: string | mongoose.Types.ObjectId
 ) =>
     ExerciseModel.findByIdAndUpdate(exerciseId, {
         $push: { muscleGroup: muscleGroupId },
     });
 export const removeMuscleGroupFromExerciseByIds = (
-    exerciseId: string,
-    muscleGroupId: string
+    exerciseId: string | mongoose.Types.ObjectId,
+    muscleGroupId: string | mongoose.Types.ObjectId
 ) =>
     ExerciseModel.findByIdAndUpdate(exerciseId, {
         $pullAll: { muscleGroup: muscleGroupId },

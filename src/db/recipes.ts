@@ -1,22 +1,19 @@
 import mongoose from "mongoose";
+import { WeightUnit } from "../helpers/enums";
 
-enum Unit {
-    Kilogram = "kg",
-    Gram = "g",
-    Milligram = "mg",
-}
-
-interface IRecipe {
+export interface IRecipe extends mongoose.Document {
     name?: string;
     description?: string;
     ingredients?: {
         aliment: mongoose.Types.ObjectId;
         quantity: number;
-        unit: Unit;
+        unit: WeightUnit;
     }[];
 }
 
-const recipeSchema = new mongoose.Schema<IRecipe>({
+interface IRecipeModel extends mongoose.Model<IRecipe> {}
+
+const recipeSchema = new mongoose.Schema<IRecipe, IRecipeModel>({
     name: { type: String, required: false },
     description: { type: String, required: false },
     ingredients: {
@@ -28,7 +25,11 @@ const recipeSchema = new mongoose.Schema<IRecipe>({
                     required: true,
                 },
                 quantity: { type: Number, min: 0, required: true },
-                unit: { type: String, enum: ["kg", "g", "mg"], required: true },
+                unit: {
+                    type: String,
+                    enum: WeightUnit,
+                    required: true,
+                },
             },
         ],
         default: () => [],
@@ -36,26 +37,40 @@ const recipeSchema = new mongoose.Schema<IRecipe>({
     },
 });
 
-export const RecipeModel = mongoose.model<IRecipe>("Recipe", recipeSchema);
+export const RecipeModel = mongoose.model<IRecipe, IRecipeModel>(
+    "Recipe",
+    recipeSchema
+);
 
 export const getRecipes = () => RecipeModel.find();
-export const getRecipeById = (id: string) => RecipeModel.findById(id);
+
+export const checkRecipeExistenceById = (
+    id: string | mongoose.Types.ObjectId
+) => RecipeModel.exists({ _id: id });
+
+export const getRecipeById = (id: string | mongoose.Types.ObjectId) =>
+    RecipeModel.findById(id);
+
 export const createRecipe = (values: Record<string, any>) =>
     new RecipeModel(values).save().then((recipe) => recipe._id);
-export const deleteRecipeById = (id: string) =>
+
+export const deleteRecipeById = (id: string | mongoose.Types.ObjectId) =>
     RecipeModel.findByIdAndDelete(id);
-export const updateRecipeById = (id: string, values: Record<string, any>) =>
-    RecipeModel.findByIdAndUpdate(id, values);
+
+export const updateRecipeById = (
+    id: string | mongoose.Types.ObjectId,
+    values: Record<string, any>
+) => RecipeModel.findByIdAndUpdate(id, values);
 
 export const addIngredientToRecipeByIds = (
-    recipeId: string,
+    recipeId: string | mongoose.Types.ObjectId,
     ingredient: object
 ) =>
     RecipeModel.findByIdAndUpdate(recipeId, {
         $push: { ingredients: ingredient },
     });
 export const removeIngredientFromRecipeByIds = (
-    recipeId: string,
+    recipeId: string | mongoose.Types.ObjectId,
     ingredient: object
 ) =>
     RecipeModel.findByIdAndUpdate(recipeId, {

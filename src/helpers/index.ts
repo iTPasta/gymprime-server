@@ -1,4 +1,5 @@
 import crypto from "crypto";
+import mongoose from "mongoose";
 
 const SECRET = process.env.AUTH_HASH_SECRET;
 
@@ -39,4 +40,17 @@ export const removeOneElementFromArray = (array: any[], element: any) => {
     } else {
         return array;
     }
+};
+
+export const indexOfObjectId = (
+    array: mongoose.Types.ObjectId[],
+    objectId: string
+) => {
+    const len = array.length;
+    for (let i = 0; i < len; i++) {
+        if (array[i].toString() === objectId) {
+            return i;
+        }
+    }
+    return -1;
 };

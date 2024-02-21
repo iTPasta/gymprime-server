@@ -1,10 +1,10 @@
 import mongoose from "mongoose";
-import { isEmailValid, random } from "../helpers";
+import { indexOfObjectId, isEmailValid, random } from "../helpers";
 
-interface IUser {
+export interface IUser extends mongoose.Document {
     username: string;
     email: string;
-    authentication: {
+    authentication?: {
         password: string;
         salt: string;
         sessionToken?: string;
@@ -28,9 +28,36 @@ interface IUser {
     diets: mongoose.Types.ObjectId[];
     programs: mongoose.Types.ObjectId[];
     trainings: mongoose.Types.ObjectId[];
+
+    ownRecipe(recipeId: string): boolean;
+    ownMeal(recipeId: string): boolean;
+    ownDiet(recipeId: string): boolean;
+    ownProgram(recipeId: string): boolean;
+    ownTraining(recipeId: string): boolean;
+
+    refreshPreferencesLastUpdate(): number;
+    refreshRecipesLastUpdate(): number;
+    refreshMealsLastUpdate(): number;
+    refreshDietsLastUpdate(): number;
+    refreshProgramsLastUpdate(): number;
+    refreshTrainingsLastUpdate(): number;
+
+    addRecipe(recipeId: string): number;
+    addMeal(mealId: string): number;
+    addDiet(dietId: string): number;
+    addProgram(programId: string): number;
+    addTraining(trainingId: string): number;
+
+    removeRecipe(recipeId: string): number;
+    removeMeal(mealId: string): number;
+    removeDiet(dietId: string): number;
+    removeProgram(programId: string): number;
+    removeTraining(trainingId: string): number;
 }
 
-const userSchema = new mongoose.Schema<IUser>({
+interface IUserModel extends mongoose.Model<IUser> {}
+
+const userSchema = new mongoose.Schema<IUser, IUserModel>({
     username: { type: String, required: true, unique: true },
     email: {
         type: String,
@@ -143,8 +170,9 @@ userSchema.methods.ownTraining = function (trainingId: string) {
 };
 
 userSchema.methods.refreshPreferencesLastUpdate = function () {
-    this.lastUpdates.preferences = Date.now();
-    // TODO : implement refreshPreferences
+    const updateTime = Date.now();
+    this.lastUpdates.preferences = updateTime;
+    return updateTime;
 };
 
 userSchema.methods.refreshRecipesLastUpdate = function () {
@@ -178,72 +206,125 @@ userSchema.methods.refreshTrainingsLastUpdate = function () {
 };
 
 userSchema.methods.addRecipe = function (recipeId: string) {
+    if (indexOfObjectId(this.recipes, recipeId) !== -1)
+        throw Error(
+            `Recipe '${recipeId}' already possessed by '${this.email}'.`
+        );
     this.recipes.push(new mongoose.Types.ObjectId(recipeId));
     return this.refreshRecipesLastUpdate();
 };
 userSchema.methods.addMeal = function (mealId: string) {
+    if (indexOfObjectId(this.meals, mealId) !== -1)
+        throw Error(`Meal '${mealId}' already possessed by '${this.email}'.`);
     this.meals.push(new mongoose.Types.ObjectId(mealId));
     return this.refreshMealsLastUpdate();
 };
 userSchema.methods.addDiet = function (dietId: string) {
+    if (indexOfObjectId(this.diets, dietId) !== -1)
+        throw Error(`Diet '${dietId}' already possessed by '${this.email}'.`);
     this.diets.push(new mongoose.Types.ObjectId(dietId));
     return this.refreshDietsLastUpdate();
 };
 userSchema.methods.addProgram = function (programId: string) {
+    if (indexOfObjectId(this.programs, programId) !== -1)
+        throw Error(
+            `Program '${programId}' already possessed by '${this.email}'.`
+        );
     this.programs.push(new mongoose.Types.ObjectId(programId));
     return this.refreshProgramsLastUpdate();
 };
 userSchema.methods.addTraining = function (trainingId: string) {
+    if (indexOfObjectId(this.trainings, trainingId) !== -1)
+        throw Error(
+            `Training '${trainingId}' already possessed by '${this.email}'.`
+        );
     this.trainings.push(new mongoose.Types.ObjectId(trainingId));
     return this.refreshTrainingsLastUpdate();
 };
 
 userSchema.methods.removeRecipe = function (recipeId: string) {
-    const index = this.recipes.indexOf(recipeId);
+    const index = indexOfObjectId(this.recipes, recipeId);
+    if (index === -1)
+        throw Error(`Recipe '${recipeId}' not possessed by '${this.email}'.`);
     this.recipes.splice(index, 1);
     return this.refreshRecipesLastUpdate();
 };
 userSchema.methods.removeMeal = function (mealId: string) {
-    const index = this.meals.indexOf(mealId);
+    const index = indexOfObjectId(this.meals, mealId);
+    if (index === -1)
+        throw Error(`Meal '${mealId}' not possessed by '${this.email}'.`);
     this.meals.splice(index, 1);
     return this.refreshMealsLastUpdate();
 };
 userSchema.methods.removeDiet = function (dietId: string) {
-    const index = this.diets.indexOf(dietId);
+    const index = indexOfObjectId(this.diets, dietId);
+    if (index === -1)
+        throw Error(`Diet '${dietId}' not possessed by '${this.email}'.`);
     this.diets.splice(index, 1);
     return this.refreshDietsLastUpdate();
 };
 userSchema.methods.removeProgram = function (programId: string) {
-    const index = this.programs.indexOf(programId);
+    const index = indexOfObjectId(this.programs, programId);
+    if (index === -1)
+        throw Error(`Program '${programId}' not possessed by '${this.email}'.`);
     this.programs.splice(index, 1);
     return this.refreshProgramsLastUpdate();
 };
 userSchema.methods.removeTraining = function (trainingId: string) {
-    const index = this.trainings.indexOf(trainingId);
-    if (index > -1) {
-        this.trainings.splice(index, 1);
-        return this.refreshTrainingsLastUpdate();
-    } else {
-        return NaN;
-    }
+    const index = indexOfObjectId(this.trainings, trainingId);
+    if (index === -1)
+        throw Error(
+            `Training '${trainingId}' not possessed by '${this.email}'.`
+        );
+    this.trainings.splice(index, 1);
+    return this.refreshTrainingsLastUpdate();
 };
 
-export const UserModel = mongoose.model<IUser>("User", userSchema);
+export const UserModel = mongoose.model<IUser, IUserModel>("User", userSchema);
 
 export const getUsers = () => UserModel.find();
+
+export const checkUserExistenceById = (id: string | mongoose.Types.ObjectId) =>
+    UserModel.exists({ _id: id });
+
+export const checkUserExistenceByEmail = (email: string) =>
+    UserModel.exists({ email: email });
+
+export const checkUserExistenceByUsername = (username: string) =>
+    UserModel.exists({ username: username });
+
+export const checkUserExistenceBySessionToken = (sessionToken: string) =>
+    UserModel.exists({
+        "authentication.sessionToken": sessionToken,
+    });
+
+export const checkUserExistenceByValidationSecret = (secret: string) =>
+    UserModel.exists({ "accountValidation.secret": secret });
+
+export const getUserById = (id: string | mongoose.Types.ObjectId) =>
+    UserModel.findById(id);
+
 export const getUserByEmail = (email: string) =>
     UserModel.findOne({ email: email });
+
 export const getUserByUsername = (username: string) =>
     UserModel.findOne({ username: username });
+
 export const getUserBySessionToken = (sessionToken: string) =>
     UserModel.findOne({
         "authentication.sessionToken": sessionToken,
     });
+
 export const getUserByValidationSecret = (secret: string) =>
     UserModel.findOne({ "accountValidation.secret": secret });
-export const getUserById = (id: string) => UserModel.findById(id);
+
 export const createUser = (values: Record<string, any>) =>
     new UserModel(values).save();
-export const deleteUserById = (id: string) => UserModel.findByIdAndDelete(id);
-export const updateUserById = (id: string, values: Record<string, any>) =>
-    UserModel.findByIdAndUpdate(id, values);
+
+export const deleteUserById = (id: string | mongoose.Types.ObjectId) =>
+    UserModel.findByIdAndDelete(id);
+
+export const updateUserById = (
+    id: string | mongoose.Types.ObjectId,
+    values: Record<string, any>
+) => UserModel.findByIdAndUpdate(id, values);

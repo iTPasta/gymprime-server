@@ -1,4 +1,6 @@
 import {
+    IAliment,
+    INutriments,
     createAliment,
     deleteAlimentById,
     getAlimentById,
@@ -13,7 +15,7 @@ export const getAliment = async (
     res: express.Response
 ) => {
     try {
-        const id = req.params.id;
+        const { id } = req.params as { id: string };
 
         if (!id) {
             return res
@@ -54,7 +56,20 @@ export const makeAliment = async (
             nutriments,
             nutriscoreGrade,
             nutriscoreScore,
-        } = req.body;
+        } = req.body as {
+            barCode: IAliment["barCode"];
+            name: IAliment["name"];
+            ciqualCode: IAliment["ciqualCode"];
+            allergens: IAliment["allergens"];
+            brands: IAliment["brands"];
+            countryLc: IAliment["countryLc"];
+            ecoscoreGrade: IAliment["ecoscoreGrade"];
+            ecoscoreScore: IAliment["ecoscoreScore"];
+            imageUrl: IAliment["imageUrl"];
+            nutriments: IAliment["nutriments"];
+            nutriscoreGrade: IAliment["nutriscoreGrade"];
+            nutriscoreScore: IAliment["nutriscoreScore"];
+        };
 
         if (!barCode || !name) {
             return res.status(400).json({
@@ -78,7 +93,7 @@ export const makeAliment = async (
         });
 
         const alimentsLastUpdate =
-            GlobalModel.refreshAlimentsLastUpdateAndSave();
+            await GlobalModel.refreshAlimentsLastUpdateAndSave();
 
         return res.status(201).json({
             alimentId: alimentId,
@@ -95,7 +110,7 @@ export const deleteAliment = async (
     res: express.Response
 ) => {
     try {
-        const { id } = req.params;
+        const { id } = req.params as { id: string };
 
         if (!id) {
             return res
@@ -134,7 +149,20 @@ export const updateAliment = async (
             nutriments,
             nutriscoreGrade,
             nutriscoreScore,
-        } = req.body;
+        } = req.body as {
+            barCode: IAliment["barCode"];
+            name: IAliment["name"];
+            ciqualCode: IAliment["ciqualCode"];
+            allergens: IAliment["allergens"];
+            brands: IAliment["brands"];
+            countryLc: IAliment["countryLc"];
+            ecoscoreGrade: IAliment["ecoscoreGrade"];
+            ecoscoreScore: IAliment["ecoscoreScore"];
+            imageUrl: IAliment["imageUrl"];
+            nutriments: IAliment["nutriments"];
+            nutriscoreGrade: IAliment["nutriscoreGrade"];
+            nutriscoreScore: IAliment["nutriscoreScore"];
+        };
 
         if (!id || !barCode || !name) {
             return res.status(400).json({

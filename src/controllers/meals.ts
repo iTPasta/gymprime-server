@@ -1,8 +1,11 @@
 import express from "express";
 import mongoose from "mongoose";
 import {
+    IMeal,
+    MealModel,
     addAlimentToMealByIds,
     addRecipeToMealByIds,
+    checkMealExistenceById,
     createMeal,
     deleteMealById,
     getMealById,
@@ -13,12 +16,13 @@ import {
 } from "../db/meals";
 import { getAlimentById } from "../db/aliments";
 import { getRecipeById } from "../db/recipes";
+import { IUser } from "../db/users";
 
 export const getMeal = async (req: express.Request, res: express.Response) => {
     try {
-        const user = req.body.user;
+        const { user } = req.body as { user: IUser };
 
-        const id = req.params.id;
+        const { id } = req.params as { id: string };
 
         if (!id) {
             return res
@@ -35,7 +39,9 @@ export const getMeal = async (req: express.Request, res: express.Response) => {
         const meal = await getMealById(id);
 
         if (!meal) {
-            return res.sendStatus(400);
+            return res.status(400).json({
+                error: "Database does not contain any meal corresponding to the provided id.",
+            });
         }
 
         return res.status(200).json({ meal: meal });
@@ -47,7 +53,13 @@ export const getMeal = async (req: express.Request, res: express.Response) => {
 
 export const makeMeal = async (req: express.Request, res: express.Response) => {
     try {
-        const { user, name, description, aliments, recipes } = req.body;
+        const { user, name, description, aliments, recipes } = req.body as {
+            user: IUser;
+            name: IMeal["name"];
+            description: IMeal["description"];
+            aliments: IMeal["aliments"];
+            recipes: IMeal["recipes"];
+        };
 
         const mealId = await createMeal({
             name: name ?? undefined,
@@ -56,12 +68,7 @@ export const makeMeal = async (req: express.Request, res: express.Response) => {
             recipes: recipes ?? undefined,
         });
 
-        const mealsLastUpdate: number = user.addMeal();
-
-        if (!mealsLastUpdate) {
-            return res.sendStatus(500);
-        }
-
+        const mealsLastUpdate: number = user.addMeal(mealId);
         await user.save();
 
         return res
@@ -78,8 +85,8 @@ export const deleteMeal = async (
     res: express.Response
 ) => {
     try {
-        const { user } = req.body;
-        const { id } = req.params;
+        const { user } = req.body as { user: IUser };
+        const { id } = req.params as { id: string };
 
         if (!id) {
             return res
@@ -93,20 +100,15 @@ export const deleteMeal = async (
             });
         }
 
-        const meal = await getMealById(id);
-
-        if (!meal) {
-            return res.sendStatus(400);
+        if (!checkMealExistenceById(id)) {
+            return res.status(400).json({
+                error: "Database does not contain any meal corresponding to the provided id.",
+            });
         }
 
         await deleteMealById(id);
 
-        const mealsLastUpdate: number = user.refreshMealsLastUpdate(id);
-
-        if (!mealsLastUpdate) {
-            return res.sendStatus(500);
-        }
-
+        const mealsLastUpdate: number = user.removeMeal(id);
         await user.save();
 
         return res.status(200).json({ mealsLastUpdate: mealsLastUpdate });
@@ -121,8 +123,14 @@ export const updateMeal = async (
     res: express.Response
 ) => {
     try {
-        const { id } = req.params;
-        const { user, name, description, aliments, recipes } = req.body;
+        const { id } = req.params as { id: string };
+        const { user, name, description, aliments, recipes } = req.body as {
+            user: IUser;
+            name: IMeal["name"];
+            description: IMeal["description"];
+            aliments: IMeal["aliments"];
+            recipes: IMeal["recipes"];
+        };
 
         if (!id) {
             return res
@@ -133,6 +141,12 @@ export const updateMeal = async (
         if (!user.ownMeal(id)) {
             return res.status(401).json({
                 error: "User does not own the meal corresponding to the provided id.",
+            });
+        }
+
+        if (!checkMealExistenceById(id)) {
+            return res.status(400).json({
+                error: "Database does not contain any meal corresponding to the provided id.",
             });
         }
 
@@ -160,8 +174,11 @@ export const addAlimentToMeal = async (
     res: express.Response
 ) => {
     try {
-        const { mealId } = req.params;
-        const { user, alimentId } = req.body;
+        const { mealId } = req.params as { mealId: string };
+        const { user, alimentId } = req.body as {
+            user: IUser;
+            alimentId: string;
+        };
 
         if (!mealId || !alimentId) {
             return res.status(400).json({
@@ -178,13 +195,17 @@ export const addAlimentToMeal = async (
         const aliment = await getAlimentById(alimentId);
 
         if (!aliment) {
-            return res.sendStatus(400);
+            return res.status(400).json({
+                error: "Database does not contain any aliment corresponding to the provided alimentId.",
+            });
         }
 
         const meal = await getMealById(mealId);
 
         if (!meal) {
-            return res.sendStatus(400);
+            return res.status(400).json({
+                error: "Database does not contain any meal corresponding to the provided mealId.",
+            });
         }
 
         await addAlimentToMealByIds(mealId, alimentId);
@@ -201,8 +222,11 @@ export const removeAlimentFromMeal = async (
     res: express.Response
 ) => {
     try {
-        const { mealId } = req.params;
-        const { user, alimentId } = req.body;
+        const { mealId } = req.params as { mealId: string };
+        const { user, alimentId } = req.body as {
+            user: IUser;
+            alimentId: string;
+        };
 
         if (!mealId || !alimentId) {
             return res.status(400).json({
@@ -219,7 +243,9 @@ export const removeAlimentFromMeal = async (
         const meal = await getMealById(mealId);
 
         if (!meal) {
-            return res.sendStatus(400);
+            return res.status(400).json({
+                error: "Database does not contain any meal corresponding to the provided mealId.",
+            });
         }
 
         await removeAlimentFromMealByIds(mealId, alimentId);
@@ -236,8 +262,11 @@ export const addRecipeToMeal = async (
     res: express.Response
 ) => {
     try {
-        const mealId = req.params.id;
-        const { user, recipeId } = req.body;
+        const { mealId } = req.params as { mealId: string };
+        const { user, recipeId } = req.body as {
+            user: IUser;
+            recipeId: string;
+        };
 
         if (!mealId || !recipeId) {
             return res.sendStatus(400);
@@ -281,8 +310,11 @@ export const removeRecipeFromMeal = async (
     res: express.Response
 ) => {
     try {
-        const mealId = req.params.id;
-        const { user, recipeId } = req.body;
+        const { mealId } = req.params as { mealId: string };
+        const { user, recipeId } = req.body as {
+            user: IUser;
+            recipeId: string;
+        };
 
         if (!mealId || !recipeId) {
             return res.sendStatus(400);
@@ -314,15 +346,20 @@ export const getMyMeals = async (
     res: express.Response
 ) => {
     try {
-        const { user } = req.body;
+        const { user } = req.body as { user: IUser };
 
-        const mealsIds = user.meals.toObject();
+        const mealsIds = user.meals;
         const meals = [];
         for (const id of mealsIds) {
             meals.push(await getMealById(id));
         }
 
-        res.status(200).json({ meals: meals });
+        const mealsLastUpdate = user.lastUpdates.meals;
+
+        res.status(200).json({
+            meals: meals,
+            mealsLastUpdate: mealsLastUpdate,
+        });
     } catch (error) {
         console.log(error);
         return res.status(500).json({ error: "Server-side exception thrown." });

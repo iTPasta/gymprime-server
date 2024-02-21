@@ -1,6 +1,16 @@
 import mongoose from "mongoose";
 
-interface IAliment {
+export interface INutriments {
+    energy?: number;
+    carbohydrates?: number;
+    sugars?: number;
+    proteins?: number;
+    fats?: number;
+    saturedFats?: number;
+    salt?: number;
+}
+
+export interface IAliment extends mongoose.Document {
     barCode: string;
     name: string;
     ciqualCode?: number;
@@ -10,28 +20,14 @@ interface IAliment {
     ecoscoreGrade?: string;
     ecoscoreScore?: number;
     imageUrl?: string;
-    nutriments: {
-        energy?: number;
-        carbohydrates?: number;
-        sugars?: number;
-        proteins?: number;
-        fats?: number;
-        saturedFats?: number;
-        salt?: number;
-    };
+    nutriments: INutriments;
     nutriscoreGrade?: string;
     nutriscoreScore?: number;
 }
 
-interface IAlimentMethods {}
+interface IAlimentModel extends mongoose.Model<IAliment> {}
 
-interface IAlimentModel extends mongoose.Model<IAliment, {}, IAlimentMethods> {}
-
-const alimentSchema = new mongoose.Schema<
-    IAliment,
-    IAlimentModel,
-    IAlimentMethods
->({
+const alimentSchema = new mongoose.Schema<IAliment, IAlimentModel>({
     barCode: { type: String, required: true, unique: true },
     name: { type: String, required: true },
     ciqualCode: { type: Number, required: false },
@@ -60,13 +56,27 @@ export const AlimentModel = mongoose.model<IAliment, IAlimentModel>(
 );
 
 export const getAliments = () => AlimentModel.find();
+
+export const checkAlimentExistenceById = (
+    id: string | mongoose.Types.ObjectId
+) => AlimentModel.exists({ _id: id });
+
+export const checkAlimentExistenceByBarcode = (barCode: string) =>
+    AlimentModel.exists({ barCode: barCode });
+
+export const getAlimentById = (id: string | mongoose.Types.ObjectId) =>
+    AlimentModel.findById(id);
+
 export const getAlimentByBarcode = (barCode: string) =>
     AlimentModel.findOne({ barCode: barCode });
-export const getAlimentById = (id: string) => AlimentModel.findById(id);
+
 export const createAliment = (values: Record<string, any>) =>
     new AlimentModel(values).save().then((aliment) => aliment._id);
 
-export const deleteAlimentById = (id: string) =>
+export const deleteAlimentById = (id: string | mongoose.Types.ObjectId) =>
     AlimentModel.findByIdAndDelete(id);
-export const updateAlimentById = (id: string, values: Record<string, any>) =>
-    AlimentModel.findByIdAndUpdate(id, values);
+
+export const updateAlimentById = (
+    id: string | mongoose.Types.ObjectId,
+    values: Record<string, any>
+) => AlimentModel.findByIdAndUpdate(id, values);
