@@ -94,29 +94,17 @@ export const getSomeData = async (
     res: express.Response
 ) => {
     try {
-        const {
-            user,
-            wantPreferences,
-            wantDiets,
-            wantMeals,
-            wantRecipes,
-            wantPrograms,
-            wantTrainings,
-            wantExercises,
-            wantMuscles,
-            wantMuscleGroups,
-        } = req.body as {
-            user: IUser;
-            wantPreferences: boolean;
-            wantDiets: boolean;
-            wantMeals: boolean;
-            wantRecipes: boolean;
-            wantPrograms: boolean;
-            wantTrainings: boolean;
-            wantExercises: boolean;
-            wantMuscles: boolean;
-            wantMuscleGroups: boolean;
-        };
+        const { user } = req.body as { user: IUser };
+        const { data } = req.query as { data: string[] };
+        const wantPreferences = data.includes("preferences");
+        const wantDiets = data.includes("diets");
+        const wantMeals = data.includes("meals");
+        const wantRecipes = data.includes("recipes");
+        const wantPrograms = data.includes("programs");
+        const wantTrainings = data.includes("trainings");
+        const wantExercises = data.includes("exercises");
+        const wantMuscles = data.includes("muscles");
+        const wantMuscleGroups = data.includes("muscleGroups");
 
         const preferences = wantPreferences ? user.preferences : undefined;
 
