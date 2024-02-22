@@ -40,4 +40,4 @@ mongoose.connection.once("open", () =>
     console.log("Connected to the database.")
 );
 
-app.use("/", router());
+app.use("/api/v1", router());

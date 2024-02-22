@@ -152,7 +152,16 @@ export const getAllExercises = async (
     try {
         const exercises = await getExercises();
 
-        return res.status(200).json({ exercises: exercises });
+        const exercisesLastUpdate = (await GlobalModel.getPublicLastUpdates())[
+            "exercises"
+        ];
+
+        return res
+            .status(200)
+            .json({
+                exercises: exercises,
+                exercisesLastUpdate: exercisesLastUpdate,
+            });
     } catch (error) {
         console.log(error);
         return res.status(500).json({ error: "Server-side exception thrown." });

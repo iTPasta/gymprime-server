@@ -144,7 +144,13 @@ export const getAllMuscles = async (
     try {
         const muscles = getMuscles();
 
-        return res.status(200).json({ muscles: muscles });
+        const musclesLastUpdate = (await GlobalModel.getPublicLastUpdates())[
+            "muscles"
+        ];
+
+        return res
+            .status(200)
+            .json({ muscles: muscles, musclesLastUpdate: musclesLastUpdate });
     } catch (error) {
         console.log(error);
         return res.status(500).json({ error: "Server-side exception thrown." });

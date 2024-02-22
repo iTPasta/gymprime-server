@@ -204,7 +204,14 @@ export const getAllAliments = async (
     try {
         const aliments = getAliments();
 
-        return res.status(200).json({ aliments: aliments });
+        const alimentsLastUpdate = (await GlobalModel.getPublicLastUpdates())[
+            "aliments"
+        ];
+
+        return res.status(200).json({
+            aliments: aliments,
+            alimentsLastUpdate: alimentsLastUpdate,
+        });
     } catch (error) {
         console.log(error);
         return res.status(500).json({ error: "Server-side exception thrown." });

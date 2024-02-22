@@ -2,7 +2,6 @@ import express from "express";
 import mongoose from "mongoose";
 import {
     IMeal,
-    MealModel,
     addAlimentToMealByIds,
     addRecipeToMealByIds,
     checkMealExistenceById,
@@ -72,7 +71,7 @@ export const makeMeal = async (req: express.Request, res: express.Response) => {
         await user.save();
 
         return res
-            .status(200)
+            .status(201)
             .json({ mealId: mealId, mealsLastUpdate: mealsLastUpdate });
     } catch (error) {
         console.log(error);

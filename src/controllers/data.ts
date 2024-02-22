@@ -18,7 +18,7 @@ export const getAllData = async (
         const { user } = req.body as { user: IUser };
 
         const userLastUpdates = user.lastUpdates;
-        const publicLastUpdates = await getGlobalByName("publicLastUpdates");
+        const publicLastUpdates = await GlobalModel.getPublicLastUpdates();
 
         const lastUpdates = {
             preferencesLastUpdate: userLastUpdates.preferences,
@@ -27,9 +27,10 @@ export const getAllData = async (
             recipesLastUpdate: userLastUpdates.recipes,
             programsLastUpdate: userLastUpdates.programs,
             trainingsLastUpdate: userLastUpdates.trainings,
-            exercisesLastUpdate: publicLastUpdates?.value.exercises,
-            muscleGroupsLastUpdate: publicLastUpdates?.value.muscleGroups,
-            musclesLastUpdate: publicLastUpdates?.value.muscles,
+            alimentsLastUpdate: publicLastUpdates.aliments,
+            exercisesLastUpdate: publicLastUpdates.exercises,
+            muscleGroupsLastUpdate: publicLastUpdates.muscleGroups,
+            musclesLastUpdate: publicLastUpdates.muscles,
         };
 
         const preferences = user.preferences;
@@ -216,7 +217,7 @@ export const getMyData = async (
     try {
         const { user } = req.body as { user: IUser };
 
-        const lastUpdates = user.lastUpdates;
+        const privateLastUpdates = user.lastUpdates;
 
         const preferences = user.preferences;
 
@@ -251,81 +252,13 @@ export const getMyData = async (
         }
 
         return res.status(200).json({
-            lastUpdates: lastUpdates,
+            privateLastUpdates: privateLastUpdates,
             preferences: preferences,
             diets: diets,
             meals: meals,
             recipes: recipes,
             programs: programs,
             trainings: trainings,
-        });
-    } catch (error) {
-        console.log(error);
-        return res.status(500).json({ error: "Server-side exception thrown." });
-    }
-};
-
-export const getLastUpdates = async (
-    req: express.Request,
-    res: express.Response
-) => {
-    try {
-        const { user } = req.body as { user: IUser };
-
-        const userLastUpdates = user.lastUpdates;
-        const publicLastUpdates = await GlobalModel.getPublicLastUpdates();
-
-        return res.status(200).json({
-            preferencesLastUpdate: userLastUpdates.preferences,
-            dietsLastUpdate: userLastUpdates.diets,
-            mealsLastUpdate: userLastUpdates.meals,
-            recipesLastUpdate: userLastUpdates.recipes,
-            programsLastUpdate: userLastUpdates.programs,
-            trainingsLastUpdate: userLastUpdates.trainings,
-            exercisesLastUpdate: publicLastUpdates.exercises,
-            muscleGroupsLastUpdate: publicLastUpdates.muscleGroups,
-            musclesLastUpdate: publicLastUpdates.muscles,
-        });
-    } catch (error) {
-        console.log(error);
-        return res.status(500).json({ error: "Server-side exception thrown." });
-    }
-};
-
-export const getPrivateLastUpdates = async (
-    req: express.Request,
-    res: express.Response
-) => {
-    try {
-        const { user } = req.body as { user: IUser };
-
-        const userLastUpdates = user.lastUpdates;
-
-        return res.status(200).json({
-            preferencesLastUpdate: userLastUpdates.preferences,
-            dietsLastUpdate: userLastUpdates.diets,
-            mealsLastUpdate: userLastUpdates.meals,
-            recipesLastUpdate: userLastUpdates.recipes,
-            programsLastUpdate: userLastUpdates.programs,
-            trainingsLastUpdate: userLastUpdates.trainings,
-        });
-    } catch (error) {
-        console.log(error);
-        return res.status(500).json({ error: "Server-side exception thrown." });
-    }
-};
-
-export const getPublicLastUpdates = async (
-    req: express.Request,
-    res: express.Response
-) => {
-    try {
-        const publicLastUpdates = await GlobalModel.getPublicLastUpdates();
-
-        return res.status(200).json({
-            exercisesLastUpdate: publicLastUpdates.exercises,
-            muscleGroupsLastUpdate: publicLastUpdates.muscleGroups,
-            musclesLastUpdate: publicLastUpdates.muscles,
         });
     } catch (error) {
         console.log(error);
